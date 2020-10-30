@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="WebApp">
     <head>
+
         <meta charset="utf-8">
-        <title>My test page</title>
+        <title>WebApp</title>
+        
     </head>
-    <body>
-        <form action="/change" method="GET">
-            <input type="text" name="firstName" value="null"/>
-            <input type="text" name="lastName" value="null"/>
-            <input type="number" name="year" value="0"/>
-            <input type="submit"/>
-        </form>
+
+    <body ng-controller="Ctrl as ctrl">
+
+        <script src="node_modules/angular/angular.min.js"></script>
+
     </body>
 </html>
