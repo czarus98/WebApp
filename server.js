@@ -15,7 +15,6 @@ let serveError = (res, code) => {
 let person={
     firstName: 'Czarek',
     lastName: 'Wojcik',
-    description: 'tralala',
     year: 1998
 }
 
