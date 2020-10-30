@@ -23,31 +23,24 @@ httpServer.on('request', function (req, res) {
         console.log(req.method, req.url)
         var parsed = url.parse(req.url, true)
         switch(parsed.pathname) {
-        case '/data':
-            res.writeHead(200, { "Content-Type": 'application/json; charset=utf-8' })
-            person.year=1998
-            res.write(JSON.stringify(person))
-            res.end()
-            break
-        case '/zero':
-            res.writeHead(200, { "Content-Type": 'application/json; charset=utf-8' })
-            person.year=0
-            res.end()
-            break
-        case '/set':
-            person.firstName=parsed.query.firstName
-            person.lastName=parsed.query.lastName
-            person.year=parsed.query.year
-            if(isNaN(person.year))
-            {
-                person.year=2000
-            }
-            res.writeHead(200, { "Content-Type": 'application/json; charset=utf-8' })
-            res.write(JSON.stringify(person))
-            res.end()
-            break
-        default:
-            fileServer.serve(req, res)
+            case '/get':
+                res.writeHead(200, { "Content-Type": 'application/json; charset=utf-8' })
+                res.write(JSON.stringify(person))
+                res.end()
+                break
+            case '/set':
+                person.firstName=parsed.query.firstName
+                person.lastName=parsed.query.lastName
+                person.year=parseInt(parsed.query.year)
+                if(isNaN(person.year)) {
+                    person.year=2000
+                }
+                res.writeHead(200, { "Content-Type": 'application/json; charset=utf-8' })
+                res.write(JSON.stringify(person))
+                res.end()
+                break
+            default:
+                fileServer.serve(req, res)
         }
     }
 )
