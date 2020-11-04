@@ -1,23 +1,36 @@
 <!DOCTYPE html>
 <html ng-app="WebApp">
-    <head>
+<head>
 
-        <meta charset="utf-8">
-        <title>WebApp</title>
-        
-    </head>
+    <meta charset="utf-8">
+    <title>WebApp</title>
 
-    <body ng-controller="Ctrl as ctrl">
+</head>
 
-        <table border="1">
-            <tr>
-                <td ng-bind="ctrl.person.firstName"></td>
-                <td ng-bind="ctrl.person.lastName"></td>
-                <td ng-bind="ctrl.person.year"></td>
-            </tr>
-        </table>
+<body ng-controller="Ctrl as ctrl">
 
-        <script src="node_modules/angular/angular.min.js"></script>
-        <script src="js/app.js"></script>
-    </body>
+<table border="1">
+    <tr>
+        <td ng-bind="ctrl.person.firstName"></td>
+        <td ng-bind="ctrl.person.lastName"></td>
+        <td ng-bind="ctrl.person.year"></td>
+    </tr>
+</table>
+
+<br>
+
+<input ng-change="ctrl.dataChanged()" ng-model="ctrl.person.firstName" type="text">
+<input ng-change="ctrl.dataChanged()" ng-model="ctrl.person.lastName" type="text">
+<input ng-change="ctrl.dataChanged()" ng-model="ctrl.person.year" type="text">
+
+<br>
+
+<input ng-model="ctrl.newPerson.firstName" type="text">
+<input ng-model="ctrl.newPerson.lastName" type="text">
+<input ng-model="ctrl.newPerson.year" type="text">
+<button ng-click="ctrl.sendNewData()">Wyślij</button>
+
+<script src="node_modules/angular/angular.min.js"></script>
+<script src="js/app.js"></script>
+</body>
 </html>

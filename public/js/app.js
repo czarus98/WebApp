@@ -1,16 +1,38 @@
 let app = angular.module('WebApp', [])
 
-app.controller('Ctrl', [ '$interval', function($interval) {
-    console.log('Kontroler Ctrl startuje')
+app.controller('Ctrl', ['$http', function ($http) {
     let ctrl = this
 
-    this.person={
-        firstName: 'Jan',
-        lastName: 'Kowalski',
-        year: 1990
+    ctrl.newPerson = {
+        firstName: '',
+        lastName: '',
+        year: 1970
     }
 
-    $interval(function (){
-        ctrl.person.year--
-    }, 1000)
+    $http.get('/get').then(
+        function (res) {
+            ctrl.person = res.data
+        },
+        function (err) {
+        }
+    )
+
+    ctrl.dataChanged = function () {
+        $http.get('/set?firstName=' + ctrl.person.firstName + '&lastName=' + ctrl.person.lastName + '&year=' + ctrl.person.year).then(
+            function (res) {
+            },
+            function (err) {
+            }
+        )
+    }
+
+    ctrl.sendNewData = function () {
+        $http.get('/set?firstName=' + ctrl.newPerson.firstName + '&lastName=' + ctrl.newPerson.lastName + '&year=' + ctrl.newPerson.year).then(
+            function (res) {
+                ctrl.person = res.data
+            },
+            function (err) {
+            }
+        )
+    }
 }])
