@@ -7,33 +7,65 @@ let fileServer = new node_static.Server('./public')
 let person = {
     firstName: 'Czarek',
     lastName: 'Wojcik',
+    amount: 0,
     year: 1998
 }
 
 httpServer.on('request', function (req, res) {
-        console.log(req.method, req.url)
+    let payload = '';
+    req.on('data', function (data) {
+            payload += data
+        }).on('end', function () {
+        let data = {};
+        try {
+            data = JSON.parse(payload);
+        } catch (ex) {
+        }
         let parsed = url.parse(req.url, true);
         switch (parsed.pathname) {
-            case '/get':
-                res.writeHead(200, {"Content-Type": 'application/json; charset=utf-8'})
-                res.write(JSON.stringify(person))
-                res.end()
-                break
-            case '/set':
-                person.firstName = parsed.query.firstName
-                person.lastName = parsed.query.lastName
-                person.year = parseInt(parsed.query.year)
-                if (isNaN(person.year)) {
-                    person.year = 2000
-                }
-                res.writeHead(200, {"Content-Type": 'application/json; charset=utf-8'})
-                res.write(JSON.stringify(person))
-                res.end()
-                break
-            default:
-                fileServer.serve(req, res)
-        }
+                case '/person':
+                    switch (req.method) {
+                        case 'GET':
+                            res.writeHead(200, {"Content-Type": 'application/json; charset=utf-8'})
+                            res.write(JSON.stringify(person))
+                            res.end()
+                            break
+                        case 'PUT':
+                            person.firstName = data.firstName
+                            person.lastName = data.lastName
+                            person.year = parseInt(data.year)
+                            if (isNaN(person.year)) {
+                                person.year = 2000
+                            }
+                            res.writeHead(200, {"Content-Type": 'application/json; charset=utf-8'})
+                            res.write(JSON.stringify(person))
+                            res.end()
+                            break
+                        case 'POST':
+                            let delta = parseFloat(data.delta)
+                            if(isNaN(delta))
+                            {
+
+                            } else {
+                                person.amount += delta
+                                res.writeHead(200, {"Content-Type": 'application/json; charset=utf-8'})
+                                res.write(JSON.stringify(person))
+                                res.end()
+                            }
+                            break
+                        case 'DELETE':
+                            person.amount=0
+                            res.writeHead(200, {"Content-Type": 'application/json; charset=utf-8'})
+                            res.write(JSON.stringify(person))
+                            res.end()
+                            break
+                    }
+                    break
+                default:
+                    fileServer.serve(req, res)
+            }
+        })
     }
 )
 
-httpServer.listen(8080)
+httpServer.listen(8000)
