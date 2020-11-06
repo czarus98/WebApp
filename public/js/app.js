@@ -6,10 +6,14 @@ app.controller('Ctrl', ['$http', function ($http) {
     ctrl.newPerson = {
         firstName: '',
         lastName: '',
-        year: 1970
+        year: 1970,
     }
 
-    $http.get('/get').then(
+    ctrl.transfer = {
+        delta: 0
+    }
+
+    $http.get('/person').then(
         function (res) {
             ctrl.person = res.data
         },
@@ -18,7 +22,7 @@ app.controller('Ctrl', ['$http', function ($http) {
     )
 
     ctrl.dataChanged = function () {
-        $http.get('/set?firstName=' + ctrl.person.firstName + '&lastName=' + ctrl.person.lastName + '&year=' + ctrl.person.year).then(
+        $http.put('/person', ctrl.person).then(
             function (res) {
             },
             function (err) {
@@ -27,9 +31,29 @@ app.controller('Ctrl', ['$http', function ($http) {
     }
 
     ctrl.sendNewData = function () {
-        $http.get('/set?firstName=' + ctrl.newPerson.firstName + '&lastName=' + ctrl.newPerson.lastName + '&year=' + ctrl.newPerson.year).then(
+        $http.put('/person', ctrl.newPerson).then(
             function (res) {
                 ctrl.person = res.data
+            },
+            function (err) {
+            }
+        )
+    }
+
+    ctrl.doTransfer = function () {
+        $http.post('/person', ctrl.transfer).then(
+            function (res) {
+                ctrl.person = res.data
+            },
+            function (err) {
+            }
+        )
+    }
+
+    ctrl.deleteAmount = function () {
+        $http.delete('/person', ctrl.transfer).then(
+            function (res) {
+                ctrl.person.amount=0
             },
             function (err) {
             }
