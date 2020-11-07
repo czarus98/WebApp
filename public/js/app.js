@@ -3,6 +3,9 @@ let app = angular.module('WebApp', [])
 app.controller('Ctrl', ['$http', function ($http) {
     let ctrl = this
 
+    ctrl.persons = []
+    ctrl.classSelected = {}
+
     ctrl.newPerson = {
         firstName: '',
         lastName: '',
@@ -15,35 +18,25 @@ app.controller('Ctrl', ['$http', function ($http) {
 
     $http.get('/person').then(
         function (res) {
-            ctrl.person = res.data
+            ctrl.persons = res.data
         },
         function (err) {
         }
     )
 
-    ctrl.dataChanged = function () {
-        $http.put('/person', ctrl.person).then(
-            function (res) {
+    ctrl.insertNewData = function() {
+        $http.post('/person', ctrl.newPerson).then(
+            function(res) {
+                ctrl.persons.push(res.data)
             },
-            function (err) {
-            }
-        )
-    }
-
-    ctrl.sendNewData = function () {
-        $http.put('/person', ctrl.newPerson).then(
-            function (res) {
-                ctrl.person = res.data
-            },
-            function (err) {
-            }
+            function(err) {}
         )
     }
 
     ctrl.doTransfer = function () {
         $http.post('/person', ctrl.transfer).then(
             function (res) {
-                ctrl.person = res.data
+                ctrl.persons = res.data
             },
             function (err) {
             }
@@ -53,10 +46,59 @@ app.controller('Ctrl', ['$http', function ($http) {
     ctrl.deleteAmount = function () {
         $http.delete('/person', ctrl.transfer).then(
             function (res) {
-                ctrl.person.amount=0
+                for(let i=0;i<ctrl.persons.length;i++)
+                {
+                    ctrl.persons[i].amount=0
+                }
             },
             function (err) {
             }
         )
     }
+
+    let refreshPersons = function() {
+        $http.get('/person').then(
+            function(res) {
+                ctrl.persons = res.data
+            },
+            function(err) {}
+        )
+    }
+
+    refreshPersons();
+
+    let refreshPerson = function() {
+        $http.get('/person?index=' + ctrl.selected).then(
+            function(res) {
+                ctrl.person = res.data
+            },
+            function(err) {}
+        )
+    }
+
+
+    ctrl.select = function(index) {
+        ctrl.selected = index
+        refreshPerson()
+    }
+
+    ctrl.updateData = function () {
+        $http.put('/person?index=' + ctrl.selected, ctrl.person).then(
+            function (res) {
+                refreshPersons()
+            },
+            function (err) {
+            }
+        )
+    }
+
+    ctrl.deleteData = function() {
+        $http.delete('/person?index=' + ctrl.selected).then(
+            function(res) {
+                refreshPersons();
+            },
+            function(err) {}
+        )
+    }
+
 }])

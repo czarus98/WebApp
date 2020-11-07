@@ -1,46 +1,79 @@
 <!DOCTYPE html>
 <html ng-app="WebApp">
 <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8"/>
     <title>WebApp</title>
 
+    <link rel="stylesheet" href="node_modules/bootstrap3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" href="css/index.css">
+
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="node_modules/bootstrap3/dist/js/bootstrap.min.js"></script>
 </head>
+<body>
+<div class="container" ng-controller="Ctrl as ctrl">
 
-<body ng-controller="Ctrl as ctrl">
+    <table class="table table-stripped table-hover">
+        <tr ng-click="ctrl.selected = -1">
+            <th>&nbsp;</th>
+            <th>Imię</th>
+            <th>Nazwisko</th>
+            <th>Rok</th>
+            <th>Kwota</th>
+        </tr>
+        <tr ng-repeat="person in ctrl.persons" ng-click="ctrl.select($index)" ng-class="{ 'rowSelected': ctrl.selected == $index }">
+            <td ng-bind="$index == ctrl.selected ? '»' : ''"></td>
+            <td ng-bind="person.firstName"></td>
+            <td ng-bind="person.lastName"></td>
+            <td ng-bind="person.year"></td>
+            <td ng-bind="person.amount"></td>
+        </tr>
+    </table>
 
-<table border="1">
-    <tr>
-        <td ng-bind="ctrl.person.firstName"></td>
-        <td ng-bind="ctrl.person.lastName"></td>
-        <td ng-bind="ctrl.person.year"></td>
-        <td ng-bind="ctrl.person.amount"></td>
-    </tr>
-</table>
+    <div class="panel panel-default" ng-if="ctrl.selected >= 0">
+        <div class="panel-heading">Zmień</div>
+        <div class="panel-body">
+            <form class="form form-inline">
+                <input class="form-control" type="text" ng-model="ctrl.person.firstName"/>
+                <input class="form-control" type="text" ng-model="ctrl.person.lastName"/>
+                <input class="form-control" type="number" ng-model="ctrl.person.year"/>
+                <button class="btn btn-success" ng-click="ctrl.updateData()">Zmień</button>
+                <button class="btn btn-danger" ng-click="ctrl.deleteData()">Usuń</button>
+            </form>
+        </div>
+    </div>
 
-<br>
+    <br/><br/>
 
-<input ng-change="ctrl.dataChanged()" ng-model="ctrl.person.firstName" type="text">
-<input ng-change="ctrl.dataChanged()" ng-model="ctrl.person.lastName" type="text">
-<input ng-change="ctrl.dataChanged()" ng-model="ctrl.person.year" type="text">
+    <div class="panel panel-default">
+        <div class="panel-heading">Dodaj</div>
+        <div class="panel-body">
+            <form class="form form-inline">
+                <input class="form-control" type="text" ng-model="ctrl.newPerson.firstName"/>
+                <input class="form-control" type="text" ng-model="ctrl.newPerson.lastName"/>
+                <input class="form-control" type="number" ng-model="ctrl.newPerson.year"/>
+                <button class="btn btn-primary" ng-click="ctrl.insertNewData()">Utwórz</button>
+            </form>
+        </div>
+    </div>
 
-<br>
+    <br/><br/>
 
-<input ng-model="ctrl.newPerson.firstName" type="text">
-<input ng-model="ctrl.newPerson.lastName" type="text">
-<input ng-model="ctrl.newPerson.year" type="text">
-<button ng-click="ctrl.sendNewData()">Wyślij</button>
+    <div class="panel panel-default">
+        <div class="panel-heading">Przelew</div>
+        <div class="panel-body">
+            <form class="form form-inline">
+                <input class="form-control" type="number" ng-model="ctrl.transfer.delta"/>
+                <button class="btn btn-default" ng-click="ctrl.doTransfer()">Przelej</button>
+            </form>
+        </div>
+    </div>
 
-<br>
-
-<input ng-model="ctrl.transfer.delta" type="number">
-<button ng-click="ctrl.doTransfer()">Przelej</button>
-
-<br>
-<button ng-click="ctrl.deleteAmount()">Wyzeruj kwote</button>
-
+</div>
 
 <script src="node_modules/angular/angular.min.js"></script>
+
 <script src="js/app.js"></script>
 </body>
 </html>
