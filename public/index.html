@@ -4,9 +4,9 @@
     <meta charset="utf-8"/>
     <title>WebApp</title>
 
-    <link rel="stylesheet" href="node_modules/bootstrap3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css">
-    <link rel="stylesheet" href="css/index.css">
+    <link href="node_modules/bootstrap3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="node_modules/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="css/index.css" rel="stylesheet">
 
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
     <script src="node_modules/bootstrap3/dist/js/bootstrap.min.js"></script>
@@ -14,30 +14,48 @@
 <body>
 <div class="container" ng-controller="Ctrl as ctrl">
 
-    <table class="table table-stripped table-hover">
-        <tr ng-click="ctrl.selected = -1">
-            <th>&nbsp;</th>
-            <th>Imię</th>
-            <th>Nazwisko</th>
-            <th>Rok</th>
-            <th>Kwota</th>
-        </tr>
-        <tr ng-repeat="person in ctrl.persons" ng-click="ctrl.select($index)" ng-class="{ 'rowSelected': ctrl.selected == $index }">
-            <td ng-bind="$index == ctrl.selected ? '»' : ''"></td>
-            <td ng-bind="person.firstName"></td>
-            <td ng-bind="person.lastName"></td>
-            <td ng-bind="person.year"></td>
-            <td ng-bind="person.amount"></td>
-        </tr>
-    </table>
+    <div class="row">
+        <div class="col col-sm-8">
+            <table class="table table-stripped table-hover">
+                <tr ng-click="ctrl.selected = -1">
+                    <th>Imię</th>
+                    <th>Nazwisko</th>
+                    <th>Rok</th>
+                    <th>Kwota</th>
+                </tr>
+                <tr ng-class="{ 'rowSelected': ctrl.selected == $index }" ng-click="ctrl.select($index)"
+                    ng-repeat="person in ctrl.persons">
+                    <td ng-bind="$index == ctrl.selected ? '»' : ''"></td>
+                    <td ng-bind="person.firstName"></td>
+                    <td ng-bind="person.lastName"></td>
+                    <td ng-bind="person.year"></td>
+                    <td ng-bind="person.amount"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="col col-sm-4">
+            <table class="table table-stripped">
+                <tr>
+                    <th>Kiedy</th>
+                    <th>Stan przed</th>
+                    <th>Ile</th>
+                </tr>
+                <tr ng-repeat="transfer in ctrl.history">
+                    <td ng-bind="ctrl.formatDate(transfer.date)"></td>
+                    <td ng-bind="transfer.amount_before"></td>
+                    <td ng-bind="transfer.delta"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
 
     <div class="panel panel-default" ng-if="ctrl.selected >= 0">
         <div class="panel-heading">Zmień</div>
         <div class="panel-body">
             <form class="form form-inline">
-                <input class="form-control" type="text" ng-model="ctrl.person.firstName"/>
-                <input class="form-control" type="text" ng-model="ctrl.person.lastName"/>
-                <input class="form-control" type="number" ng-model="ctrl.person.year"/>
+                <input class="form-control" ng-model="ctrl.person.firstName" type="text"/>
+                <input class="form-control" ng-model="ctrl.person.lastName" type="text"/>
+                <input class="form-control" ng-model="ctrl.person.year" type="number"/>
                 <button class="btn btn-success" ng-click="ctrl.updateData()">Zmień</button>
                 <button class="btn btn-danger" ng-click="ctrl.deleteData()">Usuń</button>
             </form>
@@ -50,9 +68,9 @@
         <div class="panel-heading">Dodaj</div>
         <div class="panel-body">
             <form class="form form-inline">
-                <input class="form-control" type="text" ng-model="ctrl.newPerson.firstName"/>
-                <input class="form-control" type="text" ng-model="ctrl.newPerson.lastName"/>
-                <input class="form-control" type="number" ng-model="ctrl.newPerson.year"/>
+                <input class="form-control" ng-model="ctrl.newPerson.firstName" type="text"/>
+                <input class="form-control" ng-model="ctrl.newPerson.lastName" type="text"/>
+                <input class="form-control" ng-model="ctrl.newPerson.year" type="number"/>
                 <button class="btn btn-primary" ng-click="ctrl.insertNewData()">Utwórz</button>
             </form>
         </div>
@@ -64,7 +82,7 @@
         <div class="panel-heading">Przelew</div>
         <div class="panel-body">
             <form class="form form-inline">
-                <input class="form-control" type="number" ng-model="ctrl.transfer.delta"/>
+                <input class="form-control" ng-model="ctrl.transfer.delta" type="number"/>
                 <button class="btn btn-default" ng-click="ctrl.doTransfer()">Przelej</button>
             </form>
         </div>

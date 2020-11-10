@@ -9,6 +9,8 @@ app.controller('Ctrl', ['$http', function ($http) {
         delta: 0
     }
 
+    ctrl.history = []
+
     $http.get('/person').then(
         function (res) {
             ctrl.persons = res.data
@@ -40,6 +42,7 @@ app.controller('Ctrl', ['$http', function ($http) {
         $http.post('/transfer?index=' + ctrl.selected, ctrl.transfer).then(
             function (res) {
                 ctrl.persons[ctrl.selected] = res.data
+                refreshHistory()
             },
             function (err) {
             }
@@ -79,10 +82,20 @@ app.controller('Ctrl', ['$http', function ($http) {
         )
     }
 
+    let refreshHistory = function() {
+        $http.get('/transfer?index=' + ctrl.selected).then(
+            function(res) {
+                ctrl.history = res.data
+            },
+            function(err) {}
+        )
+    }
+
 
     ctrl.select = function(index) {
         ctrl.selected = index
         refreshPerson()
+        refreshHistory()
     }
 
     ctrl.updateData = function () {
@@ -98,10 +111,15 @@ app.controller('Ctrl', ['$http', function ($http) {
     ctrl.deleteData = function() {
         $http.delete('/person?index=' + ctrl.selected).then(
             function(res) {
-                refreshPersons();
+                refreshPersons()
+                refreshHistory()
             },
             function(err) {}
         )
+    }
+
+    ctrl.formatDate = function (stamp) {
+        return new Date(stamp).toLocaleDateString();
     }
 
 }])
