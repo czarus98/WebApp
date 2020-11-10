@@ -34,7 +34,7 @@ app.controller('Ctrl', ['$http', function ($http) {
     }
 
     ctrl.doTransfer = function () {
-        $http.post('/person', ctrl.transfer).then(
+        $http.post('/transfer', ctrl.transfer).then(
             function (res) {
                 ctrl.persons = res.data
             },
