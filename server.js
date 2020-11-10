@@ -89,24 +89,22 @@ httpServer.on('request', function(req, res) {
                 switch(req.method) {
                     case 'GET':
                         if(person) {
-                            serveJson(res.history.filter(function (el) {return el.person_index == index}))
+                            serveJson(res, history.filter(function (el) {return el.person_index == index}))
                         } else {
                             serveJson(res, history)
                         }
-                        serveJson(res, history)
                         break
                     case 'POST':
                         if(!person || isNaN(parsedPayload.delta)) {
                             serveError(res, 400)
                         } else {
                             let story= {
-                                date: new Date().getTime(),
+                                date: new Date().toISOString().slice(0,19),
                                 person_index: index,
                                 amount_before: person.amount,
                                 delta: parsedPayload.delta
                             }
                             person.amount += parsedPayload.delta
-                            console.log(story)
                             history.push(story)
                             serveJson(res, person)
                         }
