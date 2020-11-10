@@ -24,6 +24,8 @@ let persons = [{
         year: 1990
     }]
 
+let history = []
+
 let serveJson = function (res, obj, code = 200) {
     res.writeHead(200, {"Content-Type": 'application/json; charset=utf-8'})
     res.write(JSON.stringify(obj))
@@ -61,7 +63,7 @@ httpServer.on('request', function(req, res) {
                         break
                     case 'POST':
                         person = {}
-                        Object.assign(person, parsedPayload)
+                        person = Object.assign(person, parsedPayload)
                         persons.push(person)
                         serveJson(res, person)
                         break
@@ -85,11 +87,27 @@ httpServer.on('request', function(req, res) {
                 break
             case '/transfer':
                 switch(req.method) {
+                    case 'GET':
+                        if(person) {
+                            serveJson(res.history.filter(function (el) {return el.person_index == index}))
+                        } else {
+                            serveJson(res, history)
+                        }
+                        serveJson(res, history)
+                        break
                     case 'POST':
-                        if(isNaN(parsedPayload.delta)) {
+                        if(!person || isNaN(parsedPayload.delta)) {
                             serveError(res, 400)
                         } else {
+                            let story= {
+                                date: new Date().getTime(),
+                                person_index: index,
+                                amount_before: person.amount,
+                                delta: parsedPayload.delta
+                            }
                             person.amount += parsedPayload.delta
+                            console.log(story)
+                            history.push(story)
                             serveJson(res, person)
                         }
                         break

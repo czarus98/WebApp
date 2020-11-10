@@ -4,13 +4,6 @@ app.controller('Ctrl', ['$http', function ($http) {
     let ctrl = this
 
     ctrl.persons = []
-    ctrl.classSelected = {}
-
-    ctrl.newPerson = {
-        firstName: '',
-        lastName: '',
-        year: 1970,
-    }
 
     ctrl.transfer = {
         delta: 0
@@ -33,10 +26,20 @@ app.controller('Ctrl', ['$http', function ($http) {
         )
     }
 
-    ctrl.doTransfer = function () {
-        $http.post('/transfer', ctrl.transfer).then(
+    ctrl.getTransfer = function () {
+        $http.get('/transfer?index=' + ctrl.selected).then(
             function (res) {
-                ctrl.persons = res.data
+                ctrl.persons[ctrl.selected] = res.data
+            },
+            function (err) {
+            }
+        )
+    }
+
+    ctrl.doTransfer = function () {
+        $http.post('/transfer?index=' + ctrl.selected, ctrl.transfer).then(
+            function (res) {
+                ctrl.persons[ctrl.selected] = res.data
             },
             function (err) {
             }
