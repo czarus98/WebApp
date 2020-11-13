@@ -24,12 +24,12 @@
                     <th>Kwota</th>
                 </tr>
                 <tr ng-class="{ 'rowSelected': ctrl.selected == $index }" ng-click="ctrl.select($index)"
-                    ng-repeat="person in ctrl.persons">
+                    ng-repeat="user in ctrl.users">
                     <td ng-bind="$index == ctrl.selected ? '»' : ''"></td>
-                    <td ng-bind="person.firstName"></td>
-                    <td ng-bind="person.lastName"></td>
-                    <td ng-bind="person.year"></td>
-                    <td ng-bind="person.amount"></td>
+                    <td ng-bind="user.firstName"></td>
+                    <td ng-bind="user.lastName"></td>
+                    <td ng-bind="user.year"></td>
+                    <td ng-bind="user.amount"></td>
                 </tr>
             </table>
         </div>
@@ -53,9 +53,9 @@
         <div class="panel-heading">Zmień</div>
         <div class="panel-body">
             <form class="form form-inline">
-                <input class="form-control" ng-model="ctrl.person.firstName" type="text"/>
-                <input class="form-control" ng-model="ctrl.person.lastName" type="text"/>
-                <input class="form-control" ng-model="ctrl.person.year" type="number"/>
+                <input class="form-control" ng-model="ctrl.user.firstName" type="text"/>
+                <input class="form-control" ng-model="ctrl.user.lastName" type="text"/>
+                <input class="form-control" ng-model="ctrl.user.year" type="number"/>
                 <button class="btn btn-success" ng-click="ctrl.updateData()">Zmień</button>
                 <button class="btn btn-danger" ng-click="ctrl.deleteData()">Usuń</button>
             </form>
@@ -68,9 +68,9 @@
         <div class="panel-heading">Dodaj</div>
         <div class="panel-body">
             <form class="form form-inline">
-                <input class="form-control" ng-model="ctrl.newPerson.firstName" type="text"/>
-                <input class="form-control" ng-model="ctrl.newPerson.lastName" type="text"/>
-                <input class="form-control" ng-model="ctrl.newPerson.year" type="number"/>
+                <input class="form-control" ng-model="ctrl.newUser.firstName" type="text"/>
+                <input class="form-control" ng-model="ctrl.newUser.lastName" type="text"/>
+                <input class="form-control" ng-model="ctrl.newUser.year" type="number"/>
                 <button class="btn btn-primary" ng-click="ctrl.insertNewData()">Utwórz</button>
             </form>
         </div>

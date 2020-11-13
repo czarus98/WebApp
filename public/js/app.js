@@ -3,7 +3,7 @@ let app = angular.module('WebApp', [])
 app.controller('Ctrl', ['$http', function ($http) {
     let ctrl = this
 
-    ctrl.persons = []
+    ctrl.users = []
 
     ctrl.transfer = {
         delta: 0
@@ -11,18 +11,18 @@ app.controller('Ctrl', ['$http', function ($http) {
 
     ctrl.history = []
 
-    $http.get('/person').then(
+    $http.get('/user').then(
         function (res) {
-            ctrl.persons = res.data
+            ctrl.users = res.data
         },
         function (err) {
         }
     )
 
     ctrl.insertNewData = function() {
-        $http.post('/person', ctrl.newPerson).then(
+        $http.post('/user', ctrl.newUser).then(
             function(res) {
-                ctrl.persons.push(res.data)
+                refreshUsers()
             },
             function(err) {}
         )
@@ -31,7 +31,7 @@ app.controller('Ctrl', ['$http', function ($http) {
     ctrl.getTransfer = function () {
         $http.get('/transfer?index=' + ctrl.selected).then(
             function (res) {
-                ctrl.persons[ctrl.selected] = res.data
+                ctrl.users[ctrl.selected] = res.data
             },
             function (err) {
             }
@@ -41,7 +41,7 @@ app.controller('Ctrl', ['$http', function ($http) {
     ctrl.doTransfer = function () {
         $http.post('/transfer?index=' + ctrl.selected, ctrl.transfer).then(
             function (res) {
-                ctrl.persons[ctrl.selected] = res.data
+                ctrl.users[ctrl.selected] = res.data
                 refreshHistory()
             },
             function (err) {
@@ -50,11 +50,11 @@ app.controller('Ctrl', ['$http', function ($http) {
     }
 
     ctrl.deleteAmount = function () {
-        $http.delete('/person', ctrl.transfer).then(
+        $http.delete('/user', ctrl.transfer).then(
             function (res) {
-                for(let i=0;i<ctrl.persons.length;i++)
+                for(let i=0; i<ctrl.users.length; i++)
                 {
-                    ctrl.persons[i].amount=0
+                    ctrl.users[i].amount=0
                 }
             },
             function (err) {
@@ -62,25 +62,25 @@ app.controller('Ctrl', ['$http', function ($http) {
         )
     }
 
-    let refreshPersons = function() {
-        $http.get('/person').then(
+    let refreshUsers = function() {
+        $http.get('/user').then(
             function(res) {
-                ctrl.persons = res.data
+                ctrl.users = res.data
             },
             function(err) {}
         )
     }
 
-    refreshPersons();
-
-    let refreshPerson = function() {
-        $http.get('/person?index=' + ctrl.selected).then(
+    let refreshUser = function() {
+        $http.get('/user?_id=' + ctrl.users[ctrl.selected]._id).then(
             function(res) {
-                ctrl.person = res.data
+                ctrl.user = res.data
             },
             function(err) {}
         )
     }
+
+    refreshUsers();
 
     let refreshHistory = function() {
         $http.get('/transfer?index=' + ctrl.selected).then(
@@ -94,14 +94,14 @@ app.controller('Ctrl', ['$http', function ($http) {
 
     ctrl.select = function(index) {
         ctrl.selected = index
-        refreshPerson()
+        refreshUser()
         refreshHistory()
     }
 
     ctrl.updateData = function () {
-        $http.put('/person?index=' + ctrl.selected, ctrl.person).then(
+        $http.put('/user?_id=' + ctrl.users[ctrl.selected]._id, ctrl.user).then(
             function (res) {
-                refreshPersons()
+                refreshUsers()
             },
             function (err) {
             }
@@ -109,9 +109,9 @@ app.controller('Ctrl', ['$http', function ($http) {
     }
 
     ctrl.deleteData = function() {
-        $http.delete('/person?index=' + ctrl.selected).then(
+        $http.delete('/user?_id=' + ctrl.users[ctrl.selected]._id).then(
             function(res) {
-                refreshPersons()
+                refreshUsers()
                 refreshHistory()
             },
             function(err) {}
