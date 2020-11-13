@@ -1,28 +1,12 @@
 let http = require('http');
 let node_static = require('node-static')
 let url = require('url')
+let mongodb = require('mongodb')
 
 let httpServer = http.createServer()
 let fileServer = new node_static.Server('./public')
 
-let persons = [{
-        firstName: 'Czarek',
-        lastName: 'Wojcik',
-        amount: 0.0,
-        year: 1998
-    },
-    {
-        firstName: 'Jan',
-        lastName: 'Kowalski',
-        amount: 500.0,
-        year: 1985
-    },
-    {
-        firstName: 'Wojciech',
-        lastName: 'Nowak',
-        amount: 10.0,
-        year: 1990
-    }]
+let userCollection = null
 
 let history = []
 
@@ -47,38 +31,77 @@ httpServer.on('request', function(req, res) {
         } catch(ex) {}
         console.log(req.method, req.url, parsedPayload)
         let parsedUrl = url.parse(req.url, true)
-        let index = parseInt(parsedUrl.query.index)
-        let person = null
-        if(index >= 0 || index < persons.length) {
-            person = persons[ index ]
+
+        let _id = null
+        let _idStr = parsedUrl.query._id
+        if(_idStr) {
+            try {
+                _id = mongodb.ObjectId(_idStr)
+            } catch (ex) {
+                serveError(res, 400)
+                return
+            }
         }
         switch(parsedUrl.pathname) {
-            case '/person':
+            case '/user':
                 switch(req.method) {
                     case 'GET':
-                        if(person)
-                            serveJson(res, person)
-                        else
-                            serveJson(res, persons)
+                        if(_id) {
+                            userCollection.findOne({_id : _id}, function (err, result) {
+                                if(err || !result) {
+                                    serveError(res, 404)
+                                }
+                                else {
+                                    serveJson(res, result)
+                                }
+                            })
+                        }
+                        else {
+                            userCollection.find({}, function (err, result) {
+                                serveJson(res, result)
+                            })
+                        }
                         break
                     case 'POST':
-                        person = {}
-                        person = Object.assign(person, parsedPayload)
-                        persons.push(person)
-                        serveJson(res, person)
+                        userCollection.insertOne(parsedPayload, function (err, result) {
+                            if(err || !result.ops || !result.ops[0]) {
+                                serveError(res, 400)
+                            } else {
+                                serveJson(res, result.ops[0])
+                            }
+                        })
                         break
                     case 'PUT':
-                        Object.assign(person, parsedPayload)
-                        serveJson(res, person)
+                        if(_id) {
+                            delete parsedPayload._id
+                            userCollection.findOneAndUpdate({_id: _id},
+                                                        {$set: parsedPayload},
+                                                        {returnOriginal: false},
+                                                        function (err, result) {
+                                if (err || !result.value) {
+                                    serveError(res, 404)
+                                }
+                                else
+                                {
+                                    serveJson(res, result.value, 200)
+                                }
+                            })
+                        } else {
+                            serveError(res, 404)
+                        }
                         break
                     case 'DELETE':
-                        if(person) {
-                            let deleted = {}
-                            Object.assign(deleted, person)
-                            persons.splice(index, 1)
-                            serveJson(res, deleted)
+                        if(_id) {
+                            userCollection.findOneAndDelete({_id: _id}, function (err, result) {
+                                if(err || !result.value) {
+                                    serveError(res, 404)
+                                }
+                                else {
+                                    serveJson(res, result.value, 200)
+                                }
+                            })
                         } else {
-                            serveError(res, 400)
+                            serveError(res, 404)
                         }
                         break
                     default:
@@ -88,29 +111,29 @@ httpServer.on('request', function(req, res) {
             case '/transfer':
                 switch(req.method) {
                     case 'GET':
-                        if(person) {
-                            serveJson(res, history.filter(function (el) {return el.person_index == index}))
-                        } else {
-                            serveJson(res, history)
-                        }
-                        break
-                    case 'POST':
-                        if(!person || isNaN(parsedPayload.delta)) {
-                            serveError(res, 400)
-                        } else {
-                            let story= {
-                                date: new Date().toISOString().slice(0,19),
-                                person_index: index,
-                                amount_before: person.amount,
-                                delta: parsedPayload.delta
-                            }
-                            person.amount += parsedPayload.delta
-                            history.push(story)
-                            serveJson(res, person)
-                        }
-                        break
-                    default:
-                        serveError(res, 405)
+                    //     if(user) {
+                    //         serveJson(res, history.filter(function (el) {return el.user_index == index}))
+                    //     } else {
+                    //         serveJson(res, history)
+                    //     }
+                    //     break
+                    // case 'POST':
+                    //     if(!user || isNaN(parsedPayload.delta)) {
+                    //         serveError(res, 400)
+                    //     } else {
+                    //         let story= {
+                    //             date: new Date().toISOString().slice(0,19),
+                    //             user_index: index,
+                    //             amount_before: user.amount,
+                    //             delta: parsedPayload.delta
+                    //         }
+                    //         user.amount += parsedPayload.delta
+                    //         history.push(story)
+                    //         serveJson(res, user)
+                    //     }
+                    //     break
+                    // default:
+                    //     serveError(res, 405)
                 }
             default:
                 fileServer.serve(req, res)
@@ -118,4 +141,19 @@ httpServer.on('request', function(req, res) {
     })
 })
 
-httpServer.listen(8000)
+mongodb.MongoClient.connect('mongodb://localhost', {useUnifiedTopology: true}, function (err, connection) {
+    if(err) {
+        console.error('Connection to mongodb failed')
+        process.exit(0)
+    }
+
+    let db = connection.db('WebDatabase')
+    userCollection = db.collection('users')
+    // userCollection.find({}, function (err, result) {
+    //     users = result
+    // })
+
+    console.log('Database connected, starting http server')
+
+    httpServer.listen(8000)
+})
