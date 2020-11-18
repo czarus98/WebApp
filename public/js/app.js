@@ -4,12 +4,18 @@ app.controller('Ctrl', ['$http', function ($http) {
     let ctrl = this
 
     ctrl.users = []
+    ctrl.history = []
+    ctrl.selected = -1
 
     ctrl.transfer = {
         delta: 0
     }
 
-    ctrl.history = []
+    ctrl.newUser = {
+        firstName: '',
+        lastName: '',
+        year: 1970
+    }
 
     $http.get('/user').then(
         function (res) {
@@ -28,18 +34,8 @@ app.controller('Ctrl', ['$http', function ($http) {
         )
     }
 
-    ctrl.getTransfer = function () {
-        $http.get('/transfer?index=' + ctrl.selected).then(
-            function (res) {
-                ctrl.users[ctrl.selected] = res.data
-            },
-            function (err) {
-            }
-        )
-    }
-
     ctrl.doTransfer = function () {
-        $http.post('/transfer?index=' + ctrl.selected, ctrl.transfer).then(
+        $http.post('/transfer?recipient=' + ctrl.users[ctrl.selected]._id, ctrl.transfer).then(
             function (res) {
                 ctrl.users[ctrl.selected] = res.data
                 refreshHistory()
@@ -83,14 +79,17 @@ app.controller('Ctrl', ['$http', function ($http) {
     refreshUsers();
 
     let refreshHistory = function() {
-        $http.get('/transfer?index=' + ctrl.selected).then(
-            function(res) {
-                ctrl.history = res.data
-            },
-            function(err) {}
-        )
+        if(ctrl.selected<0) {
+            ctrl.history=[]
+        } else {
+            $http.get('/transfer?recipient=' + ctrl.users[ctrl.selected]._id).then(
+                function(res) {
+                    ctrl.history = res.data
+                },
+                function(err) {}
+            )
+        }
     }
-
 
     ctrl.select = function(index) {
         ctrl.selected = index
