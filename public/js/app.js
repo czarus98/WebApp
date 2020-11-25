@@ -1,124 +1,50 @@
-let app = angular.module('WebApp', [])
+let app = angular.module('WebApp', ['ngRoute', 'ngSanitize'])
 
-app.controller('Ctrl', ['$http', function ($http) {
+app.constant('routes', [
+    {
+        route: '/',
+        templateUrl: 'homeView.html',
+        controller: 'HomeCtrl',
+        controllerAs: 'ctrl',
+        menu: '<i class="fa fa-lg fa-home"></i>'
+    },
+    {route: '/users', templateUrl: 'usersView.html', controller: 'UsersCtrl', controllerAs: 'ctrl', menu: 'Osoby'},
+    {
+        route: '/transfers',
+        templateUrl: 'transfersView.html',
+        controller: 'TransfersCtrl',
+        controllerAs: 'ctrl',
+        menu: 'Przelewy'
+    },
+    {route: '/groups', templateUrl: 'groupsView.html', controller: 'GroupsCtrl', controllerAs: 'ctrl', menu: 'Grupy'}
+])
+
+app.config(['$routeProvider', '$locationProvider', 'routes', function ($routeProvider, $locationProvider, routes) {
+    $locationProvider.hashPrefix('')
+    for (let i in routes) {
+        $routeProvider.when(routes[i].route, routes[i])
+    }
+    $routeProvider.otherwise({redirectTo: '/'})
+}])
+
+app.controller('ContainerCtrl', ['$http', '$scope', '$location', 'routes', function ($http, $scope, $location, routes) {
     let ctrl = this
 
-    ctrl.users = []
-    ctrl.history = []
-    ctrl.selected = -1
-
-    ctrl.transfer = {
-        delta: 0
-    }
-
-    ctrl.newUser = {
-        firstName: '',
-        lastName: '',
-        year: 1970
-    }
-
-    $http.get('/user').then(
-        function (res) {
-            ctrl.users = res.data
-        },
-        function (err) {
+    let rebuildMenu = function () {
+        ctrl.menu = []
+        for (let i in routes) {
+            ctrl.menu.push({route: routes[i].route, title: routes[i].menu})
         }
-    )
-
-    ctrl.insertNewData = function() {
-        $http.post('/user', ctrl.newUser).then(
-            function(res) {
-                refreshUsers()
-            },
-            function(err) {}
-        )
+        $location.path('/')
     }
+    rebuildMenu()
 
-    ctrl.doTransfer = function () {
-        $http.post('/transfer?recipient=' + ctrl.users[ctrl.selected]._id, ctrl.transfer).then(
-            function (res) {
-                ctrl.users[ctrl.selected] = res.data
-                refreshHistory()
-            },
-            function (err) {
-            }
-        )
+    ctrl.isCollapsed = true
+    $scope.$on('$routeChangeSuccess', function () {
+        ctrl.isCollapsed = true
+    })
+
+    ctrl.navClass = function (page) {
+        return page === $location.path() ? 'active' : ''
     }
-
-    ctrl.deleteAmount = function () {
-        $http.delete('/user', ctrl.transfer).then(
-            function (res) {
-                for(let i=0; i<ctrl.users.length; i++)
-                {
-                    ctrl.users[i].amount=0
-                }
-            },
-            function (err) {
-            }
-        )
-    }
-
-    let refreshUsers = function() {
-        $http.get('/user').then(
-            function(res) {
-                ctrl.users = res.data
-            },
-            function(err) {}
-        )
-    }
-
-    let refreshUser = function() {
-        $http.get('/user?_id=' + ctrl.users[ctrl.selected]._id).then(
-            function(res) {
-                ctrl.user = res.data
-            },
-            function(err) {}
-        )
-    }
-
-    refreshUsers();
-
-    let refreshHistory = function() {
-        if(ctrl.selected<0) {
-            ctrl.history=[]
-        } else {
-            $http.get('/transfer?recipient=' + ctrl.users[ctrl.selected]._id).then(
-                function(res) {
-                    ctrl.history = res.data
-                },
-                function(err) {}
-            )
-        }
-    }
-
-    ctrl.select = function(index) {
-        ctrl.selected = index
-        refreshUser()
-        refreshHistory()
-    }
-
-    ctrl.updateData = function () {
-        $http.put('/user?_id=' + ctrl.users[ctrl.selected]._id, ctrl.user).then(
-            function (res) {
-                refreshUsers()
-            },
-            function (err) {
-            }
-        )
-    }
-
-    ctrl.deleteData = function() {
-        $http.delete('/user?_id=' + ctrl.users[ctrl.selected]._id).then(
-            function(res) {
-                refreshUsers()
-                refreshHistory()
-            },
-            function(err) {}
-        )
-    }
-
-    ctrl.formatDate = function (stamp) {
-        return new Date(stamp).toLocaleDateString();
-    }
-
 }])

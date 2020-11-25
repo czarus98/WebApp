@@ -4,94 +4,53 @@
     <meta charset="utf-8"/>
     <title>WebApp</title>
 
-    <link rel="stylesheet" href="node_modules/bootstrap3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css">
-    <link rel="stylesheet" href="css/index.css">
+    <link href="node_modules/bootstrap3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="node_modules/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="css/index.css" rel="stylesheet">
 
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
     <script src="node_modules/bootstrap3/dist/js/bootstrap.min.js"></script>
 </head>
 <body>
-<div class="container" ng-controller="Ctrl as ctrl">
+<div class="container" ng-controller="ContainerCtrl as ctrl">
 
-    <div class="row">
-        <div class="col col-sm-8">
-            <table class="table table-stripped table-hover">
-                <tr ng-click="ctrl.selected = -1">
-                    <th>&nbsp;</th>
-                    <th>Imię</th>
-                    <th>Nazwisko</th>
-                    <th>Rok</th>
-                    <th>Kwota</th>
-                </tr>
-                <tr ng-repeat="user in ctrl.users" ng-click="ctrl.select($index)" ng-class="{ 'rowSelected': ctrl.selected == $index }">
-                    <td ng-bind="$index == ctrl.selected ? '»' : ''"></td>
-                    <td ng-bind="user.firstName"></td>
-                    <td ng-bind="user.lastName"></td>
-                    <td ng-bind="user.year"></td>
-                    <td ng-bind="user.amount"></td>
-                </tr>
-            </table>
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+
+            <div class="navbar-header">
+
+                <button class="navbar-toggle" ng-click="ctrl.isCollapsed = !ctrl.isCollapsed" type="button">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+            </div>
+
+            <div class="navbar-collapse" ng-class="ctrl.isCollapsed ? 'collapse' : 'in'">
+
+                <ul class="nav navbar-nav">
+                    <li ng-class="ctrl.navClass(menuPos.route)" ng-repeat="menuPos in ctrl.menu">
+                        <a href="#{{menuPos.route}}" ng-bind-html="menuPos.title"></a>
+                    </li>
+                </ul>
+
+            </div>
         </div>
-        <div class="col col-sm-4">
-            <table class="table table-stripped">
-                <tr>
-                <th>Data</th>
-                <th>Kwota przed</th>
-                <th>Przelew</th>
-                </tr>
-                <tr ng-repeat="transfer in ctrl.history">
-                    <td ng-bind="ctrl.formatDate(transfer.date)"></td>
-                    <td ng-bind="transfer.amount_before"></td>
-                    <td ng-bind="transfer.delta"></td>
-                </tr>
-            </table>
-        </div>
-    </div>
+    </nav>
 
-    <div class="panel panel-default" ng-if="ctrl.selected >= 0">
-        <div class="panel-heading">Zmień</div>
-        <div class="panel-body">
-            <form class="form form-inline">
-                <input class="form-control" type="text" ng-model="ctrl.user.firstName"/>
-                <input class="form-control" type="text" ng-model="ctrl.user.lastName"/>
-                <input class="form-control" type="number" ng-model="ctrl.user.year"/>
-                <button class="btn btn-success" ng-click="ctrl.updateData()">Zmień</button>
-                <button class="btn btn-danger" ng-click="ctrl.deleteData()">Usuń</button>
-            </form>
-        </div>
-    </div>
 
-    <br/><br/>
-
-    <div class="panel panel-default">
-        <div class="panel-heading">Dodaj</div>
-        <div class="panel-body">
-            <form class="form form-inline">
-                <input class="form-control" type="text" ng-model="ctrl.newUser.firstName"/>
-                <input class="form-control" type="text" ng-model="ctrl.newUser.lastName"/>
-                <input class="form-control" type="number" ng-model="ctrl.newUser.year"/>
-                <button class="btn btn-primary" ng-click="ctrl.insertNewData()">Utwórz</button>
-            </form>
-        </div>
-    </div>
-
-    <br/><br/>
-
-    <div class="panel panel-default">
-        <div class="panel-heading">Przelew</div>
-        <div class="panel-body">
-            <form class="form form-inline">
-                <input class="form-control" type="number" ng-model="ctrl.transfer.delta"/>
-                <button class="btn btn-default" ng-click="ctrl.doTransfer()" ng-disabled="ctrl.selected < 0">Przelej</button>
-            </form>
-        </div>
-    </div>
-
+    <div ng-view></div>
 </div>
 
 <script src="node_modules/angular/angular.min.js"></script>
+<script src="node_modules/angular-route/angular-route.min.js"></script>
+<script src="node_modules/angular-sanitize/angular-sanitize.min.js"></script>
 
 <script src="js/app.js"></script>
+<script src="js/usersCtrl.js"></script>
+<script src="js/homeCtrl.js"></script>
+<script src="js/transfersCtrl.js"></script>
+<script src="js/groupsCtrl.js"></script>
 </body>
 </html>
