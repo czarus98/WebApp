@@ -1,65 +1,76 @@
 let lib = require('./lib')
+let mongodb = require('mongodb')
 
 module.exports = {
 
-    handle: function (userCollection, req, res, _id, parsedPayload) {
-        switch (req.method) {
+    handle: function (env, collection) {
+        let _id = null
+        if (env.parsedUrl.query._id) {
+            try {
+                _id = mongodb.ObjectID(env.parsedUrl.query._id)
+            } catch (ex) {
+                lib.serveError(env.res, 406, '_id ' + env.parsedUrl.query._id + ' is not valid')
+                return
+            }
+        }
+
+        switch (env.req.method) {
             case 'GET':
                 if (_id) {
-                    userCollection.findOne({_id: _id}, function (err, result) {
+                    collection.findOne({_id: _id}, function (err, result) {
                         if (err || !result) {
-                            lib.serveError(res, 404, 'User not found')
+                            lib.serveError(env.res, 404, 'User not found')
                         } else {
-                            lib.serveJson(res, result)
+                            lib.serveJson(env.res, result)
                         }
                     })
                 } else {
-                    userCollection.find({}).toArray(function (err, result) {
-                        lib.serveJson(res, result)
+                    collection.find({}).toArray(function (err, result) {
+                        lib.serveJson(env.res, result)
                     })
                 }
                 break
             case 'POST':
-                userCollection.insertOne(parsedPayload, function (err, result) {
+                collection.insertOne(env.parsedPayload, function (err, result) {
                     if (err || !result.ops || !result.ops[0]) {
-                        lib.serveError(res, 400, 'Insert failed')
+                        lib.serveError(env.res, 400, 'Insert failed')
                     } else {
-                        lib.serveJson(res, result.ops[0])
+                        lib.serveJson(env.res, result.ops[0])
                     }
                 })
                 break
             case 'PUT':
                 if (_id) {
-                    delete parsedPayload._id
-                    userCollection.findOneAndUpdate({_id: _id},
-                        {$set: parsedPayload},
+                    delete env.parsedPayload._id
+                    collection.findOneAndUpdate({_id: _id},
+                        {$set: env.parsedPayload},
                         {returnOriginal: false},
                         function (err, result) {
                             if (err || !result.value) {
-                                lib.serveError(res, 404, 'User not found')
+                                lib.serveError(env.res, 404, 'User not found')
                             } else {
-                                lib.serveJson(res, result.value, 200)
+                                lib.serveJson(env.res, result.value, 200)
                             }
                         })
                 } else {
-                    lib.serveError(res, 404, 'No _id')
+                    lib.serveError(env.res, 404, 'No _id')
                 }
                 break
             case 'DELETE':
                 if (_id) {
-                    userCollection.findOneAndDelete({_id: _id}, function (err, result) {
+                    collection.findOneAndDelete({_id: _id}, function (err, result) {
                         if (err || !result.value) {
-                            lib.serveError(res, 404, 'User not found')
+                            lib.serveError(env.res, 404, 'User not found')
                         } else {
-                            lib.serveJson(res, result.value, 200)
+                            lib.serveJson(env.res, result.value, 200)
                         }
                     })
                 } else {
-                    lib.serveError(res, 400, 'No _id')
+                    lib.serveError(env.res, 400, 'No _id')
                 }
                 break
             default:
-                lib.serveError(res, 405, 'Method not implemented')
+                lib.serveError(env.res, 405, 'Method not implemented')
         }
     }
 }

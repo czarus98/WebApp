@@ -1,56 +1,50 @@
 let mongodb = require('mongodb')
 let lib = require('./lib')
+let db = require('./db')
 
 module.exports = {
 
-    perform: function (historyCollection, userCollection, req, res, _idStr, parsedPayload, parsedUrl) {
-        let _id=parsedUrl.query._id
-
-        try {
-            _id = mongodb.ObjectId(_idStr)
-        } catch (ex) {
-            lib.serveError(res, 406, '_id broken')
-            return
-        }
+    perform: function (env) {
 
         let recipient = null
         try {
-            recipient = mongodb.ObjectId(parsedUrl.query.recipient)
+            recipient = mongodb.ObjectId(env.parsedUrl.query.recipient)
         } catch (e) {
-            lib.serveError(res, 406, 'Recipient _id broken')
+            lib.serveError(env.res, 406, 'Recipient _id broken')
             return
         }
-        switch (req.method) {
+
+        switch (env.req.method) {
             case 'GET':
-                historyCollection.find({recipient: recipient}).toArray(function (err, result) {
+                db.historyCollection.find({recipient: recipient}).toArray(function (err, result) {
                     if (err || !result) {
-                        lib.serveError(res, 404, 'History not found')
+                        lib.serveError(env.res, 404, 'History not found')
                     } else {
-                        lib.serveJson(res, result)
+                        lib.serveJson(env.res, result)
                     }
                 })
                 break
             case 'POST':
-                userCollection.findOne({_id: recipient}, function (err, result) {
+                db.userCollection.findOne({_id: recipient}, function (err, result) {
                     if (err || !result) {
-                        lib.serveError(res, 404, 'User not found')
+                        lib.serveError(env.res, 404, 'User not found')
                     } else {
                         let oldAmount = (isNaN(result.amount) ? 0 : result.amount)
-                        let delta = (isNaN(parsedPayload.delta) ? 0 : (parsedPayload.delta))
+                        let delta = (isNaN(env.parsedPayload.delta) ? 0 : (env.parsedPayload.delta))
                         let newAmount = oldAmount + delta
-                        userCollection.findOneAndUpdate({_id: recipient}, {$set: {amount: newAmount}}, {returnOriginal: false}, function (err, result) {
+                        db.userCollection.findOneAndUpdate({_id: recipient}, {$set: {amount: newAmount}}, {returnOriginal: false}, function (err, result) {
                             if (err || !result.value) {
-                                lib.serveError(res, 404, 'User not found')
+                                lib.serveError(env.res, 404, 'User not found')
                             } else {
                                 let updatedUser = result.value
-                                historyCollection.insertOne({
+                                db.historyCollection.insertOne({
                                     date: new Date().getTime(),
                                     recipient: recipient,
                                     amount_before: oldAmount,
                                     delta: delta,
                                     amount_after: newAmount
                                 }, function () {
-                                    lib.serveJson(res, updatedUser)
+                                    lib.serveJson(env.res, updatedUser)
                                 })
                             }
                         })
@@ -58,7 +52,7 @@ module.exports = {
                 })
                 break
             default:
-                lib.serveError(res, 405, 'Method not implemented')
+                lib.serveError(env.res, 405, 'Method not implemented')
         }
     }
 }
