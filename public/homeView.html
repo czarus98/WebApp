@@ -6,5 +6,23 @@
 </head>
 <body>
 <h1>Strona główna</h1>
+
+<div class="panel panel-default">
+    <div class="panel-heading" ng-bind="ctrl.login? ctrl.login : 'Niezalogowany'"></div>
+    <div class="panel-body">
+        <form class="form form-inline" ng-if="!ctrl.login">
+            <label>
+                <input class="form-control" placeholder="Login" ng-model="ctrl.credentials.login" type="text"/>
+            </label>
+            <label>
+                <input class="form-control" placeholder="Hasło" ng-model="ctrl.credentials.password" type="password"/>
+            </label>
+            <button class="btn btn-primary" ng-click="ctrl.doLogin()">Zaloguj</button>
+        </form>
+        <form class="form form-inline" ng-if="ctrl.login">
+            <button class="btn btn-primary" ng-click="ctrl.doLogout()">Wyloguj</button>
+        </form>
+    </div>
+</div>
 </body>
 </html>

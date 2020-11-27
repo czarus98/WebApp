@@ -1,6 +1,7 @@
 let db = require('./db')
 let collectionRest = require('./collectionRest')
 let transfer = require('./transfer')
+let login = require('./login')
 
 module.exports = {
 
@@ -15,6 +16,9 @@ module.exports = {
             case '/transfer':
                 transfer.perform(env)
                 break
+            case '/login':
+                login.handle (env)
+                break;
             default:
                 return false
         }
