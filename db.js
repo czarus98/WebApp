@@ -18,6 +18,7 @@ let db = module.exports = {
             db.userCollection = conn.collection('users')
             db.historyCollection = conn.collection('history')
             db.groupCollection = conn.collection('groups')
+            db.credentialCollection = conn.collection('credentials')
             nextTick()
         })
     }

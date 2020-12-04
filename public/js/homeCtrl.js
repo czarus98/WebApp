@@ -1,8 +1,9 @@
 app = angular.module('WebApp')
 
-app.controller('HomeCtrl', [ '$http', function ($http) {
+app.controller('HomeCtrl', ['$http', 'common', function ($http, common) {
     let ctrl = this
 
+    ctrl.loggedUser = common.sessionData
     ctrl.credentials = {
         login: '',
         password: ''
@@ -11,7 +12,7 @@ app.controller('HomeCtrl', [ '$http', function ($http) {
     ctrl.doLogin = function () {
         $http.post('/login', ctrl.credentials).then(
             function (res) {
-                ctrl.login = res.data.login
+                common.rebuildMenu()
             },
             function (err) {
 
@@ -22,20 +23,11 @@ app.controller('HomeCtrl', [ '$http', function ($http) {
     ctrl.doLogout = function () {
         $http.delete('/login', ctrl.credentials).then(
             function (res) {
-                ctrl.login = res.data.login
+                common.rebuildMenu()
             },
             function (err) {
 
             }
         )
     }
-
-    $http.get('/login').then(
-        function (res) {
-            ctrl.login = res.data.login
-        },
-        function (err){
-
-        }
-    )
 }])

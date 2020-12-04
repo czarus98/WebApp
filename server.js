@@ -20,11 +20,11 @@ httpServer.on('request', function (req, res) {
     let now = Date.now()
     if (!session || !sessions[session]) {
         session = uuid.v4()
-        sessions[session] = { from: req.connection.remoteAddress, created: now, touched: now }
+        sessions[session] = {from: req.connection.remoteAddress, created: now, touched: now}
     } else {
         sessions[session].touched = now
     }
-    appCookies.set('session', session, { httpOnly: false })
+    appCookies.set('session', session, {httpOnly: false})
 
     let env = {
         req: req,
