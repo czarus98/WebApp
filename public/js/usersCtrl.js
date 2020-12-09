@@ -1,7 +1,17 @@
 app = angular.module('WebApp')
 
-app.controller('UsersCtrl', ['$http', function ($http) {
+app.controller('UsersCtrl', ['$http', 'common', 'routes', function ($http, common, routes) {
     let ctrl = this
+
+    ctrl.isVisible = function () {
+        let route = routes.find(function (element) {
+            return element.route === '/users'
+        })
+        return route && common.sessionData.role in routes[route].roles
+    }
+    if (!ctrl.isVisible()) {
+        return
+    }
 
     ctrl.users = []
     ctrl.history = []
@@ -69,4 +79,6 @@ app.controller('UsersCtrl', ['$http', function ($http) {
             }
         )
     }
+
+
 }])

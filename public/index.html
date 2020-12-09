@@ -14,6 +14,11 @@
 <body>
 <div class="container" ng-controller="ContainerCtrl as ctrl">
 
+    <div class="alert-animated" close="ctrl.closeAlert()" dismiss-on-timeout="3000" ng-class="ctrl._alert.type"
+         ng-if="ctrl._alert.text" uib-alert>
+        {{ctrl._alert.text}}
+    </div>
+
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container-fluid">
 
@@ -39,13 +44,14 @@
         </div>
     </nav>
 
-
     <div ng-view></div>
 </div>
 
 <script src="node_modules/angular/angular.min.js"></script>
 <script src="node_modules/angular-route/angular-route.min.js"></script>
 <script src="node_modules/angular-sanitize/angular-sanitize.min.js"></script>
+<script src="node_modules/angular-animate/angular-animate.min.js"></script>
+<script src="node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
 
 <script src="js/app.js"></script>
 <script src="js/usersCtrl.js"></script>

@@ -1,4 +1,4 @@
-let app = angular.module('WebApp', ['ngRoute', 'ngSanitize'])
+let app = angular.module('WebApp', ['ngRoute', 'ngSanitize', 'ngAnimate', 'ui.bootstrap'])
 
 app.constant('routes', [
     {
@@ -41,7 +41,7 @@ app.config(['$routeProvider', '$locationProvider', 'routes', function ($routePro
     $routeProvider.otherwise({redirectTo: '/'})
 }])
 
-app.service('common', ['$http', '$location', 'routes', function ($http, $location, routes) {
+app.service('common', ['$http', '$location', 'routes', '$uibModal', function ($http, $location, routes, $uibModal) {
     let common = this
 
     common.menu = []
@@ -66,11 +66,54 @@ app.service('common', ['$http', '$location', 'routes', function ($http, $locatio
             }
         )
     }
+
+    common._alert = {text: '', type: 'alert-success'}
+
+    common.alert = function (type, text) {
+        common._alert.type = type
+        common._alert.text = text
+    }
+
+    common.confirm = function (confirmOptions, nextTick) {
+        let modalInstance = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title-top',
+            ariaDescribedBy: 'modal-body-top',
+            templateUrl: 'confirmDialog.html',
+            controller: 'ConfirmDialog',
+            controllerAs: 'ctrl',
+            result: {
+                confirmOptions: function () {
+                    return confirmOptions
+                }
+            }
+        })
+
+        modalInstance.result.then(
+            function () {
+                nextTick(true)
+            },
+            function (ret) {
+                nextTick(false)
+            }
+        )
+    }
 }])
+
+app.controller('ConfirmDialog', [ '$uibModalInstance', 'confirmOptions', function($uibModalInstance, confirmOptions) {
+    let ctrl = this
+    ctrl.opt = confirmOptions
+
+    ctrl.ok = function () { $uibModalInstance.close() }
+    ctrl.cancel = function () { $uibModalInstance.dismiss('cancel') }
+
+}])
+
 
 app.controller('ContainerCtrl', ['$scope', '$location', 'common', function ($scope, $location, common) {
     let ctrl = this
 
+    ctrl._alert = common._alert
     ctrl.menu = common.menu
     common.rebuildMenu()
 
@@ -81,5 +124,9 @@ app.controller('ContainerCtrl', ['$scope', '$location', 'common', function ($sco
 
     ctrl.navClass = function (page) {
         return page === $location.path() ? 'active' : ''
+    }
+
+    ctrl.closeAlert = function () {
+        ctrl._alert.text = ''
     }
 }])

@@ -1,7 +1,18 @@
 app = angular.module('WebApp')
 
-app.controller('GroupsCtrl', ['$http', function ($http) {
+app.controller('GroupsCtrl', ['$http', 'common', 'routes', function ($http, common, routes) {
     let ctrl = this
+
+    ctrl.isVisible = function () {
+        let route = routes.find(function (element) {
+            return element.route === '/groups'
+        })
+
+        return route && common.sessionData.role in routes[route].roles
+    }
+    if (!ctrl.isVisible()) {
+        return
+    }
 
     ctrl.groups = []
     ctrl.selected = -1
