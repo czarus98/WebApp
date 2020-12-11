@@ -40,6 +40,11 @@
                     </li>
                 </ul>
 
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a ng-bind-html="ctrl.loginIcon()" ng-click="ctrl.login()"></a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
@@ -57,6 +62,7 @@
 <script src="js/usersCtrl.js"></script>
 <script src="js/homeCtrl.js"></script>
 <script src="js/transfersCtrl.js"></script>
+<script src="js/loginDialog.js"></script>
 <script src="js/groupsCtrl.js"></script>
 </body>
 </html>

@@ -14,14 +14,15 @@ app.constant('routes', [
         controller: 'UsersCtrl',
         controllerAs: 'ctrl',
         menu: 'Osoby',
-        roles: [1, 2]
+        roles: [1]
     },
     {
         route: '/transfers',
         templateUrl: 'transfersView.html',
         controller: 'TransfersCtrl',
         controllerAs: 'ctrl',
-        menu: 'Przelewy'
+        menu: 'Przelewy',
+        roles: [2]
     },
     {
         route: '/groups',
@@ -47,7 +48,7 @@ app.service('common', ['$http', '$location', 'routes', '$uibModal', function ($h
     common.menu = []
     common.sessionData = {}
 
-    common.rebuildMenu = function () {
+    common.rebuildMenu = function (nextTick = null) {
         $http.get('/login').then(
             function (res) {
                 common.sessionData.login = res.data.login
@@ -60,6 +61,9 @@ app.service('common', ['$http', '$location', 'routes', '$uibModal', function ($h
                     }
                 }
                 $location.path('/')
+                if (nextTick) {
+                    nextTick()
+                }
             },
             function (err) {
 
@@ -74,17 +78,17 @@ app.service('common', ['$http', '$location', 'routes', '$uibModal', function ($h
         common._alert.text = text
     }
 
-    common.confirm = function (confirmOptions, nextTick) {
+    common.dialog = function (templateUrl, controllerName, options, nextTick) {
         let modalInstance = $uibModal.open({
             animation: true,
             ariaLabelledBy: 'modal-title-top',
             ariaDescribedBy: 'modal-body-top',
-            templateUrl: 'confirmDialog.html',
-            controller: 'ConfirmDialog',
+            templateUrl: templateUrl,
+            controller: controllerName,
             controllerAs: 'ctrl',
             result: {
-                confirmOptions: function () {
-                    return confirmOptions
+                options: function () {
+                    return options
                 }
             }
         })
@@ -98,19 +102,30 @@ app.service('common', ['$http', '$location', 'routes', '$uibModal', function ($h
             }
         )
     }
+
+    common.confirm = function (options, nextTick) {
+        common.dialog('confirmDialog.html', 'ConfirmDialog', options, nextTick)
+    }
+
+    common.formatDate = function (stamp) {
+        return new Date(stamp).toLocaleDateString();
+    }
 }])
 
-app.controller('ConfirmDialog', [ '$uibModalInstance', 'confirmOptions', function($uibModalInstance, confirmOptions) {
+app.controller('ConfirmDialog', ['$uibModalInstance', 'options', function ($uibModalInstance, options) {
     let ctrl = this
-    ctrl.opt = confirmOptions
+    ctrl.options = options
 
-    ctrl.ok = function () { $uibModalInstance.close() }
-    ctrl.cancel = function () { $uibModalInstance.dismiss('cancel') }
-
+    ctrl.ok = function () {
+        $uibModalInstance.close()
+    }
+    ctrl.cancel = function () {
+        $uibModalInstance.dismiss('cancel')
+    }
 }])
 
 
-app.controller('ContainerCtrl', ['$scope', '$location', 'common', function ($scope, $location, common) {
+app.controller('ContainerCtrl', ['$scope', '$location', 'common', '$http', function ($scope, $location, common, $http) {
     let ctrl = this
 
     ctrl._alert = common._alert
@@ -128,5 +143,36 @@ app.controller('ContainerCtrl', ['$scope', '$location', 'common', function ($sco
 
     ctrl.closeAlert = function () {
         ctrl._alert.text = ''
+    }
+
+    ctrl.loginIcon = function () {
+        return common.sessionData.login ? common.sessionData.firstName + '&nbsp;<span class="fa fa-lg fa-sign-out"></span>' : '<span class="fa fa-lg fa-sign-in"></span>'
+    }
+
+    ctrl.login = function () {
+        if (common.sessionData.login) {
+            common.confirm({title: 'Wylogowanie', body: 'Czy na pewno chcesz sie wylogować?'}, function (result) {
+                if (result) {
+                    $http.delete('/login', ctrl.credentials).then(
+                        function (res) {
+                            common.rebuildMenu(function () {
+                                common.alert('alert-success', 'Zostałeś wylogowany')
+                            })
+                        },
+                        function (err) {
+
+                        }
+                    )
+                }
+            })
+        } else {
+            common.dialog('loginDialog.html', 'LoginDialog', {}, function (result) {
+                if (result) {
+                    common.rebuildMenu(function () {
+                        common.alert('alert-success', 'Witaj, ' + common.sessionData.firstName)
+                    })
+                }
+            })
+        }
     }
 }])
