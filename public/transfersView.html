@@ -5,48 +5,30 @@
     <title>Przelewy</title>
 </head>
 <body>
-<div class="row">
-    <div class="col col-sm-8">
-        <table class="table table-stripped table-hover">
-            <tr ng-click="ctrl.selected = -1">
-                <th>&nbsp;</th>
-                <th>Imię</th>
-                <th>Nazwisko</th>
-                <th>Rok</th>
-                <th>Kwota</th>
-            </tr>
-            <tr ng-class="{ 'rowSelected': ctrl.selected == $index }" ng-click="ctrl.select($index)"
-                ng-repeat="user in ctrl.users">
-                <td ng-bind="$index == ctrl.selected ? '»' : ''"></td>
-                <td ng-bind="user.firstName"></td>
-                <td ng-bind="user.lastName"></td>
-                <td ng-bind="user.year"></td>
-                <td ng-bind="user.amount"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="col col-sm-4">
         <table class="table table-stripped">
             <tr>
                 <th>Data</th>
                 <th>Kwota przed</th>
                 <th>Przelew</th>
+                <th>Kwota po</th>
             </tr>
             <tr ng-repeat="transfer in ctrl.history">
                 <td ng-bind="ctrl.formatDate(transfer.date)"></td>
                 <td ng-bind="transfer.amount_before"></td>
                 <td ng-bind="transfer.delta"></td>
+                <td ng-bind="transfer.amount_after"></td>
             </tr>
         </table>
-    </div>
-</div>
 
-<br/><br/>
+<br><br>
 
 <div class="panel panel-default">
     <div class="panel-heading">Przelew</div>
     <div class="panel-body">
         <form class="form form-inline">
+            <select class="form-control">
+
+            </select>
             <input class="form-control" ng-model="ctrl.transfer.delta" type="number"/>
             <button class="btn btn-default" ng-click="ctrl.doTransfer()" ng-disabled="ctrl.selected < 0">Przelej
             </button>

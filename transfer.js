@@ -16,7 +16,7 @@ module.exports = {
 
         switch (env.req.method) {
             case 'GET':
-                db.historyCollection.find({recipient: recipient}).toArray(function (err, result) {
+                db.historyCollection.find({recipient: env.sessionData._id}).toArray(function (err, result) {
                     if (err || !result) {
                         lib.serveError(env.res, 404, 'History not found')
                     } else {

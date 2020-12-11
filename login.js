@@ -28,6 +28,7 @@ module.exports = {
                                 env.sessionData.login = env.parsedPayload.login
                                 env.sessionData.firstName = result.firstName
                                 env.sessionData.role = result2.role
+                                env.sessionData._id = result._id
                                 serveSessionData(env)
                             }
                         })
@@ -38,6 +39,7 @@ module.exports = {
                 delete env.sessionData.login
                 delete env.sessionData.firstName
                 delete env.sessionData.role
+                delete env.sessionData._id
                 serveSessionData(env)
                 break
             default:
