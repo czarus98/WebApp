@@ -16,10 +16,39 @@ module.exports = {
 
         switch (env.req.method) {
             case 'GET':
-                db.historyCollection.find({ $or: [
-                        {sender: env.sessionData._id, delta: { $lt: 0}},
-                        {recipient: env.sessionData._id, delta: { $gt: 0}}
-                    ]}).toArray(function (err, result) {
+                db.historyCollection.aggregate([
+                    {
+                        $match: {
+                            $or: [
+                                {sender: env.sessionData._id, delta: {$lt: 0}},
+                                {recipient: env.sessionData._id, delta: {$gt: 0}}
+                            ]
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'sender',
+                            foreignField: '_id',
+                            as: 'senderData'
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'recipient',
+                            foreignField: '_id',
+                            as: 'recipientData'
+                        }
+                    },
+                    {$unwind: '$senderData'},
+                    {$unwind: '$recipientData'},
+                    {$addFields: {senderFirstName: '$senderData.firstName'}},
+                    {$addFields: {senderLastName: '$senderData.lastName'}},
+                    {$addFields: {recipientFirstName: '$recipientData.firstName'}},
+                    {$addFields: {recipientLastName: '$recipientData.lastName'}},
+                    {$project: {senderData: false, recipientData: false}}
+                ]).toArray(function (err, result) {
                     if (err || !result) {
                         lib.serveError(env.res, 404, 'No Transfers')
                     } else {
@@ -28,32 +57,32 @@ module.exports = {
                 })
                 break
             case 'POST':
-                db.userCollection.findOne({ _id: env.sessionData._id }, function(err, senderData) {
-                    if(err || !senderData) {
+                db.userCollection.findOne({_id: env.sessionData._id}, function (err, senderData) {
+                    if (err || !senderData) {
                         lib.serveError(env.res, 404, 'no sender')
                         return
                     }
                     let delta = isNaN(env.parsedPayload.delta) ? 0 : env.parsedPayload.delta
-                    if(delta <= 0) {
+                    if (delta <= 0) {
                         lib.serveError(env.res, 400, 'delta should be positive')
                         return
                     }
-                    if(senderData.amount < delta) {
+                    if (senderData.amount < delta) {
                         lib.serveError(env.res, 400, 'not enough money')
                         return
                     }
 
                     senderData.amount -= delta
 
-                    db.userCollection.findOneAndUpdate({ _id: recipient }, { $inc: { amount: delta } },
-                        { returnOriginal: false }, function(err, result) {
-                            if(err || !result.value) {
+                    db.userCollection.findOneAndUpdate({_id: recipient}, {$inc: {amount: delta}},
+                        {returnOriginal: false}, function (err, result) {
+                            if (err || !result.value) {
                                 lib.serveError(env.res, 400, 'no recipient')
                                 return
                             }
                             let recipientData = result.value
 
-                            db.userCollection.findOneAndUpdate({ _id: senderData._id }, { $set: { amount: senderData.amount } })
+                            db.userCollection.findOneAndUpdate({_id: senderData._id}, {$set: {amount: senderData.amount}})
 
                             let now = new Date().getTime()
                             db.historyCollection.insertOne({
@@ -76,19 +105,19 @@ module.exports = {
                 })
                 break
             case 'DELETE':
-                db.userCollection.findOne({ _id: env.sessionData._id}, function (err, senderData) {
-                    if(err || !senderData){
+                db.userCollection.findOne({_id: env.sessionData._id}, function (err, senderData) {
+                    if (err || !senderData) {
                         lib.serveError(env.res, 404, 'No sender')
                         return
                     }
-                    lib.serveJson(env.res, { amount: senderData.amount })
+                    lib.serveJson(env.res, {amount: senderData.amount})
                 })
                 break
             default:
                 lib.serveError(env.res, 405, 'Method not implemented')
         }
     },
-    userList: function(env) {
+    userList: function (env) {
         db.userCollection.find({}).toArray(function (err, result) {
             lib.serveJson(env.res, result)
         })

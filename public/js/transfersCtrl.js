@@ -11,7 +11,7 @@ app.controller('TransfersCtrl', ['$http', 'common', function ($http, common) {
     }
     ctrl.amount = 0
 
-    ctrl.recipients = [ { id: 1, name: 'ala' }, { id: 2, name: 'ma' }, { id: 4, name: 'kota' } ]
+    ctrl.recipients = [{id: 1, name: 'ala'}, {id: 2, name: 'ma'}, {id: 4, name: 'kota'}]
     ctrl.recipient = ctrl.recipients[0]
 
     let refreshHistory = function () {

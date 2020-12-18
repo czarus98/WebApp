@@ -8,12 +8,16 @@
 <table class="table table-stripped">
     <tr>
         <th>Data</th>
+        <th>Nadawca</th>
+        <th>Odbiorca</th>
         <th>Kwota przed</th>
         <th>Przelew</th>
         <th>Kwota po</th>
     </tr>
     <tr ng-repeat="transfer in ctrl.history">
         <td ng-bind="ctrl.formatDate(transfer.date)"></td>
+        <td ng-bind="transfer.senderFirstName+' '+transfer.senderLastName"></td>
+        <td ng-bind="transfer.recipientFirstName+' '+transfer.recipientLastName"></td>
         <td ng-bind="transfer.amount_after - transfer.delta"></td>
         <td ng-bind="transfer.delta"></td>
         <td ng-bind="transfer.amount_after"></td>

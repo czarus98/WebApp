@@ -30,7 +30,7 @@ module.exports = {
                 }
                 break
             case '/transfer':
-                if(env.sessionData.role === 2) {
+                if (env.sessionData.role === 2) {
                     transfer.perform(env)
                 } else {
                     lib.serveError(env.res, 403, 'permission denied')
