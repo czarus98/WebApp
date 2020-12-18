@@ -9,11 +9,23 @@ app.controller('TransfersCtrl', ['$http', 'common', function ($http, common) {
     ctrl.transfer = {
         delta: 0
     }
+    ctrl.amount = 0
+
+    ctrl.recipients = [ { id: 1, name: 'ala' }, { id: 2, name: 'ma' }, { id: 4, name: 'kota' } ]
+    ctrl.recipient = ctrl.recipients[0]
 
     let refreshHistory = function () {
         $http.get('/transfer').then(
             function (res) {
                 ctrl.history = res.data
+                $http.delete('/transfer').then(
+                    function (res) {
+                        ctrl.amount = res.data.amount
+                    },
+                    function (err) {
+
+                    }
+                )
             },
             function (err) {
             })
@@ -22,13 +34,22 @@ app.controller('TransfersCtrl', ['$http', 'common', function ($http, common) {
     refreshHistory()
 
     ctrl.doTransfer = function () {
-        $http.post('/transfer?recipient=' + ctrl.users[ctrl.selected]._id, ctrl.transfer).then(
+        $http.post('/transfer?recipient=' + ctrl.recipient._id, ctrl.transfer).then(
             function (res) {
-                ctrl.users[ctrl.selected] = res.data
                 refreshHistory()
             },
             function (err) {
             }
         )
     }
+
+    $http.get('/userList').then(
+        function (res) {
+            ctrl.recipients = res.data
+            ctrl.recipient = ctrl.recipients[0]
+        },
+        function (err) {
+            ctrl.recipients = []
+            ctrl.recipient = null
+        })
 }])

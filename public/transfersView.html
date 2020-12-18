@@ -5,20 +5,20 @@
     <title>Przelewy</title>
 </head>
 <body>
-        <table class="table table-stripped">
-            <tr>
-                <th>Data</th>
-                <th>Kwota przed</th>
-                <th>Przelew</th>
-                <th>Kwota po</th>
-            </tr>
-            <tr ng-repeat="transfer in ctrl.history">
-                <td ng-bind="ctrl.formatDate(transfer.date)"></td>
-                <td ng-bind="transfer.amount_before"></td>
-                <td ng-bind="transfer.delta"></td>
-                <td ng-bind="transfer.amount_after"></td>
-            </tr>
-        </table>
+<table class="table table-stripped">
+    <tr>
+        <th>Data</th>
+        <th>Kwota przed</th>
+        <th>Przelew</th>
+        <th>Kwota po</th>
+    </tr>
+    <tr ng-repeat="transfer in ctrl.history">
+        <td ng-bind="ctrl.formatDate(transfer.date)"></td>
+        <td ng-bind="transfer.amount_after - transfer.delta"></td>
+        <td ng-bind="transfer.delta"></td>
+        <td ng-bind="transfer.amount_after"></td>
+    </tr>
+</table>
 
 <br><br>
 
@@ -26,11 +26,11 @@
     <div class="panel-heading">Przelew</div>
     <div class="panel-body">
         <form class="form form-inline">
-            <select class="form-control">
-
-            </select>
+            <select class="form-control" ng-model="ctrl.recipient"
+                    ng-options="option.firstName+' '+option.lastName for option in ctrl.recipients track by option._id"></select>
             <input class="form-control" ng-model="ctrl.transfer.delta" type="number"/>
-            <button class="btn btn-default" ng-click="ctrl.doTransfer()" ng-disabled="ctrl.selected < 0">Przelej
+            <button class="btn btn-default" ng-click="ctrl.doTransfer()"
+                    ng-disabled="ctrl.transfer.delta > ctrl.amount ">Przelej
             </button>
         </form>
     </div>

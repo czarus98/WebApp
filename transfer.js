@@ -16,43 +16,81 @@ module.exports = {
 
         switch (env.req.method) {
             case 'GET':
-                db.historyCollection.find({recipient: env.sessionData._id}).toArray(function (err, result) {
+                db.historyCollection.find({ $or: [
+                        {sender: env.sessionData._id, delta: { $lt: 0}},
+                        {recipient: env.sessionData._id, delta: { $gt: 0}}
+                    ]}).toArray(function (err, result) {
                     if (err || !result) {
-                        lib.serveError(env.res, 404, 'History not found')
+                        lib.serveError(env.res, 404, 'No Transfers')
                     } else {
                         lib.serveJson(env.res, result)
                     }
                 })
                 break
             case 'POST':
-                db.userCollection.findOne({_id: recipient}, function (err, result) {
-                    if (err || !result) {
-                        lib.serveError(env.res, 404, 'User not found')
-                    } else {
-                        let oldAmount = (isNaN(result.amount) ? 0 : result.amount)
-                        let delta = (isNaN(env.parsedPayload.delta) ? 0 : (env.parsedPayload.delta))
-                        let newAmount = oldAmount + delta
-                        db.userCollection.findOneAndUpdate({_id: recipient}, {$set: {amount: newAmount}}, {returnOriginal: false}, function (err, result) {
-                            if (err || !result.value) {
-                                lib.serveError(env.res, 404, 'User not found')
-                            } else {
-                                let updatedUser = result.value
-                                db.historyCollection.insertOne({
-                                    date: new Date().getTime(),
-                                    recipient: recipient,
-                                    amount_before: oldAmount,
-                                    delta: delta,
-                                    amount_after: newAmount
-                                }, function () {
-                                    lib.serveJson(env.res, updatedUser)
-                                })
-                            }
-                        })
+                db.userCollection.findOne({ _id: env.sessionData._id }, function(err, senderData) {
+                    if(err || !senderData) {
+                        lib.serveError(env.res, 404, 'no sender')
+                        return
                     }
+                    let delta = isNaN(env.parsedPayload.delta) ? 0 : env.parsedPayload.delta
+                    if(delta <= 0) {
+                        lib.serveError(env.res, 400, 'delta should be positive')
+                        return
+                    }
+                    if(senderData.amount < delta) {
+                        lib.serveError(env.res, 400, 'not enough money')
+                        return
+                    }
+
+                    senderData.amount -= delta
+
+                    db.userCollection.findOneAndUpdate({ _id: recipient }, { $inc: { amount: delta } },
+                        { returnOriginal: false }, function(err, result) {
+                            if(err || !result.value) {
+                                lib.serveError(env.res, 400, 'no recipient')
+                                return
+                            }
+                            let recipientData = result.value
+
+                            db.userCollection.findOneAndUpdate({ _id: senderData._id }, { $set: { amount: senderData.amount } })
+
+                            let now = new Date().getTime()
+                            db.historyCollection.insertOne({
+                                date: now,
+                                sender: senderData._id,
+                                recipient: recipient,
+                                delta: -delta,
+                                amount_after: senderData.amount
+                            })
+                            db.historyCollection.insertOne({
+                                date: now,
+                                sender: senderData._id,
+                                recipient: recipient,
+                                delta: delta,
+                                amount_after: recipientData.amount
+                            })
+
+                            lib.serveJson(env.res, senderData)
+                        })
+                })
+                break
+            case 'DELETE':
+                db.userCollection.findOne({ _id: env.sessionData._id}, function (err, senderData) {
+                    if(err || !senderData){
+                        lib.serveError(env.res, 404, 'No sender')
+                        return
+                    }
+                    lib.serveJson(env.res, { amount: senderData.amount })
                 })
                 break
             default:
                 lib.serveError(env.res, 405, 'Method not implemented')
         }
+    },
+    userList: function(env) {
+        db.userCollection.find({}).toArray(function (err, result) {
+            lib.serveJson(env.res, result)
+        })
     }
 }
