@@ -3,14 +3,14 @@ let collectionRest = require('./collectionRest')
 let transfer = require('./transfer')
 let login = require('./login')
 let lib = require('./lib')
+let userHandler = require('./userHandler')
 
 module.exports = {
-
     handle: function (env) {
         switch (env.parsedUrl.pathname) {
-            case '/person':
+            case '/user':
                 if (env.sessionData.role === 1) {
-                    collectionRest.handle(env, db.userCollection)
+                    userHandler.handle(env)
                 } else {
                     lib.serveError(env.res, 403, 'Permission denied')
                 }
@@ -22,7 +22,7 @@ module.exports = {
                     lib.serveError(env.res, 403, 'Permission denied')
                 }
                 break
-            case '/personList':
+            case '/userList':
                 if (env.sessionData.role === 2 && env.req.method === 'GET') {
                     transfer.userList(env)
                 } else {

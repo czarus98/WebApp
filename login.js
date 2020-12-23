@@ -17,18 +17,19 @@ module.exports = {
                 serveSessionData(env)
                 break
             case 'POST':
-                db.userCollection.findOne({email: env.parsedPayload.login}, function (err, result) {
-                    if (err || !result) {
-                        lib.serveError(env.res, 401, 'Authorization failed')
+                db.userCollection.findOne({email: env.parsedPayload.login}, function (err, result1) {
+                    if (err || !result1) {
+                        console.log('email')
+                        lib.serveError(env.res, 401, 'authorization failed')
                     } else {
-                        db.credentialCollection.findOne({user_id: result._id}, function (err, result2) {
+                        db.credentialCollection.findOne({user_id: result1._id}, function (err, result2) {
                             if (err || !result2 || result2.password !== env.parsedPayload.password) {
-                                lib.serveError(env.res, 401, 'Authorization failed')
+                                lib.serveError(env.res, 401, 'authorization failed')
                             } else {
                                 env.sessionData.login = env.parsedPayload.login
-                                env.sessionData.firstName = result.firstName
+                                env.sessionData.firstName = result1.firstName
                                 env.sessionData.role = result2.role
-                                env.sessionData._id = result._id
+                                env.sessionData._id = result1._id
                                 serveSessionData(env)
                             }
                         })

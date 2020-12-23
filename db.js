@@ -7,6 +7,7 @@ let db = module.exports = {
     userCollection: null,
     historyCollection: null,
     groupCollection: null,
+    credentialsCollection: null,
 
     init: function (nextTick) {
         mongodb.MongoClient.connect(config.dbUrl, {useUnifiedTopology: true}, function (err, connection) {

@@ -1,5 +1,6 @@
 let lib = require('./lib')
 let mongodb = require('mongodb')
+const db = require("./db");
 
 module.exports = {
 

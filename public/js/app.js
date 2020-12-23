@@ -56,7 +56,7 @@ app.service('common', ['$http', '$location', 'routes', '$uibModal', function ($h
                 common.sessionData.role = res.data.role
                 common.menu.length = 0
                 for (let i in routes) {
-                    if (!routes[i].roles || common.sessionData.role in routes[i].roles) {
+                    if (!routes[i].roles || routes[i].roles.includes(common.sessionData.role)) {
                         common.menu.push({route: routes[i].route, title: routes[i].menu})
                     }
                 }
@@ -166,7 +166,7 @@ app.controller('ContainerCtrl', ['$scope', '$location', 'common', '$http', funct
                 }
             })
         } else {
-            common.dialog('loginDialog.html', 'LoginDialog', {}, function (result) {
+            common.dialog('loginDialog.html', 'LoginDialog', {defaultCredentials: ctrl.defaultCredentials}, function (result) {
                 if (result) {
                     common.rebuildMenu(function () {
                         common.alert('alert-success', 'Witaj, ' + common.sessionData.firstName)
