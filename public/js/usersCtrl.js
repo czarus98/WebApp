@@ -17,15 +17,15 @@ app.controller('UsersCtrl', ['$http', 'common', 'routes', function ($http, commo
     ctrl.history = []
     ctrl.selected = -1
     ctrl.limit = 5
+    ctrl.skip = 0
     ctrl.filter = ''
-    ctrl.previous
-    ctrl.next
 
     ctrl.newUser = {
         firstName: '',
         lastName: '',
         email: '',
-        year: 1970
+        year: 1970,
+        role: 2
     }
 
     let refreshUsers = function () {
@@ -40,20 +40,23 @@ app.controller('UsersCtrl', ['$http', 'common', 'routes', function ($http, commo
     }
 
     ctrl.nextPage = function () {
-        ctrl.limit += 5
+        ctrl.skip += ctrl.limit
         ctrl.filterUsers()
     }
 
     ctrl.previousPage = function () {
-        ctrl.limit -= 5
+        ctrl.skip -= ctrl.limit
         ctrl.filterUsers()
     }
 
     ctrl.filterUsers = function () {
+        if(ctrl.skip<0) {
+            ctrl.skip=0
+        }
         if(ctrl.limit <= 0) {
             ctrl.limit = 1
         }
-        $http.get('/user?limit=' + ctrl.limit + '&filter=' + ctrl.filter).then(
+        $http.get('/user?skip=' + ctrl.skip + '&limit=' + ctrl.limit + '&filter=' + ctrl.filter).then(
             function(res) {
                 ctrl.users = res.data
             },
@@ -81,8 +84,10 @@ app.controller('UsersCtrl', ['$http', 'common', 'routes', function ($http, commo
             function (res) {
                 refreshUsers()
                 ctrl.filterUsers()
+                common.alert('alert-success', 'Użytkownik dodany');
             },
             function (err) {
+                common.alert('alert-danger', 'Nie udało się dodać użytkownika');
             }
         )
     }
@@ -97,8 +102,10 @@ app.controller('UsersCtrl', ['$http', 'common', 'routes', function ($http, commo
             function (res) {
                 refreshUsers()
                 ctrl.filterUsers()
+                common.alert('alert-success', 'Dane osoby zostały zmienione');
             },
             function (err) {
+                common.alert('alert-danger', 'Nie udało sie zmienic danych')
             }
         )
     }
@@ -108,8 +115,10 @@ app.controller('UsersCtrl', ['$http', 'common', 'routes', function ($http, commo
             function (res) {
                 refreshUsers()
                 ctrl.filterUsers()
+                common.alert('alert-success', 'Osoba została usunięta');
             },
             function (err) {
+                common.alert('alert-danger', 'Nie udało sie usunac osoby')
             }
         )
     }

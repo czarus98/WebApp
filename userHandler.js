@@ -30,15 +30,17 @@ module.exports = {
                     }
                 } else {
                     let limit = parseInt(env.parsedUrl.query.limit)
-                    if (isNaN(limit) || limit <= 0) {
-                        lib.serveError(env.res, 400, 'wrong limit number')
+                    let skip = parseInt(env.parsedUrl.query.skip)
+                    if (isNaN(limit) || limit <= 0 || skip<0 || isNaN(skip)) {
+                        lib.serveError(env.res, 400, 'wrong limit or skip number')
                         return
                     }
                     let filter = env.parsedUrl.query.filter
                     let value_match = new RegExp(filter)
                     db.userCollection.aggregate([
-                        {$match: {$or: [{firstName: value_match}, {lastName: value_match}]}},
-                        {$limit: limit}
+                        {$match: {$or: [{firstName: value_match}, {lastName: value_match}, {email: value_match}]}},
+                        {$limit: limit+skip},
+                        {$skip: skip}
                     ]).toArray(function (err, result) {
                         if (err)
                             lib.serveError(env.res, 400, 'Fail to get users');
@@ -62,27 +64,40 @@ module.exports = {
                 }
                 break
             case 'POST':
-                db.userCollection.insertOne(env.parsedPayload, function (err, result) {
-                    if (err || !result.ops || !result.ops[0]) {
-                        lib.serveError(env.res, 400, 'Insert failed')
+                db.userCollection.findOne({email: env.parsedPayload.email}, function (err, emailResult) {
+                    if(!emailResult) {
+                        db.userCollection.insertOne(env.parsedPayload, function (err, insertResult) {
+                            if (err || !insertResult.ops || !insertResult.ops[0]) {
+                                lib.serveError(env.res, 400, 'Insert failed')
+                            } else {
+                                lib.serveJson(env.res, insertResult.ops[0])
+                            }
+                        })
                     } else {
-                        lib.serveJson(env.res, result.ops[0])
+
+                        lib.serveError(env.res, 400, 'Email already exists')
                     }
                 })
                 break
             case 'PUT':
                 if (_id) {
                     delete env.parsedPayload._id
-                    db.userCollection.findOneAndUpdate({_id: _id},
-                        {$set: env.parsedPayload},
-                        {returnOriginal: false},
-                        function (err, result) {
-                            if (err || !result.value) {
-                                lib.serveError(env.res, 404, 'User not found')
-                            } else {
-                                lib.serveJson(env.res, result.value, 200)
-                            }
-                        })
+                    db.userCollection.findOne({email: env.parsedPayload.email}, function (err, emailResult) {
+                        if(!emailResult) {
+                            db.userCollection.findOneAndUpdate({_id: _id},
+                                {$set: env.parsedPayload},
+                                {returnOriginal: false},
+                                function (err, result) {
+                                    if (err || !result.value) {
+                                        lib.serveError(env.res, 404, 'User not found')
+                                    } else {
+                                        lib.serveJson(env.res, result.value, 200)
+                                    }
+                                })
+                        } else {
+                            lib.serveError(env.res, 400, 'Email already exists')
+                        }
+                    })
                 } else {
                     lib.serveError(env.res, 404, 'No _id')
                 }

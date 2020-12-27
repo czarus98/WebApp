@@ -1,9 +1,18 @@
 body {
     margin-top: 5em;
+    background-color: #c7c5c5;
 }
 
-.rowSelected {
-    background-color: lightslategrey;
+filter {
+    align-content: center;
+}
+
+.navbar {
+    background-color: #c7c5c5;
+}
+
+.table {
+    background-color: #c7c5c5;
 }
 
 .alert-animated {
