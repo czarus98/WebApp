@@ -30,10 +30,10 @@ app.controller('UsersCtrl', ['$http', 'common', 'routes', function ($http, commo
 
     let refreshUsers = function () {
         $http.get('/user').then(
-            function(res) {
+            function (res) {
                 ctrl.users = res.data
             },
-            function(err) {
+            function (err) {
 
             }
         )
@@ -50,17 +50,17 @@ app.controller('UsersCtrl', ['$http', 'common', 'routes', function ($http, commo
     }
 
     ctrl.filterUsers = function () {
-        if(ctrl.skip<0) {
-            ctrl.skip=0
+        if (ctrl.skip < 0) {
+            ctrl.skip = 0
         }
-        if(ctrl.limit <= 0) {
+        if (ctrl.limit <= 0) {
             ctrl.limit = 1
         }
         $http.get('/user?skip=' + ctrl.skip + '&limit=' + ctrl.limit + '&filter=' + ctrl.filter).then(
-            function(res) {
+            function (res) {
                 ctrl.users = res.data
             },
-            function(err) {
+            function (err) {
 
             }
         )
@@ -111,15 +111,19 @@ app.controller('UsersCtrl', ['$http', 'common', 'routes', function ($http, commo
     }
 
     ctrl.deleteData = function () {
-        $http.delete('/user?_id=' + ctrl.users[ctrl.selected]._id).then(
-            function (res) {
-                refreshUsers()
-                ctrl.filterUsers()
-                common.alert('alert-success', 'Osoba została usunięta');
-            },
-            function (err) {
-                common.alert('alert-danger', 'Nie udało sie usunac osoby')
+        common.dialog('deleteDialog.html', 'DeleteDialog', {}, function (result) {
+            if (result) {
+                $http.delete('/user?_id=' + ctrl.users[ctrl.selected]._id).then(
+                    function (res) {
+                        refreshUsers()
+                        ctrl.filterUsers()
+                        common.alert('alert-success', 'Osoba została usunięta');
+                    },
+                    function (err) {
+                        common.alert('alert-danger', 'Nie udało sie usunac osoby')
+                    }
+                )
             }
-        )
+        })
     }
 }])

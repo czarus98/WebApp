@@ -4,21 +4,21 @@ app.controller('LoginDialog', ['$http', 'common', '$uibModalInstance', function 
     let ctrl = this
 
     ctrl.sessionData = common.sessionData
-    ctrl.credentials = { login: '', password: '' }
+    ctrl.credentials = {login: '', password: ''}
     ctrl.error = ''
 
-    ctrl.ok = function() {
+    ctrl.ok = function () {
         $http.post('/login', ctrl.credentials).then(
-            function(res) {
+            function (res) {
                 $uibModalInstance.close()
             },
-            function(err) {
+            function (err) {
                 ctrl.error = 'Logowanie nieudane'
             }
         )
     }
 
-    ctrl.cancel = function() {
+    ctrl.cancel = function () {
         $uibModalInstance.dismiss('cancel')
     }
 }])
