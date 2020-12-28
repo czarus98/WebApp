@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebApp</title>
+</head>
+<body>
+<form>
+    <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Rejestracja</h3>
+    </div>
+    <div class="modal-body" id="modal-body">
+        <label>
+            <input autofocus class="form-control" ng-change="ctrl.error=''" ng-model="ctrl.registrationForm.login"
+                   placeholder="Email"
+                   type="text"/>
+        </label>
+        <br>
+        <label>
+            <input class="form-control" ng-change="ctrl.error=''" ng-model="ctrl.registrationForm.password"
+                   placeholder="Hasło"
+                   type="password"/>
+        </label>
+        <label>
+            <input class="form-control" ng-change="ctrl.error=''" ng-model="ctrl.registrationForm.firstName"
+                   placeholder="Imie"
+                   type="text"/>
+        </label>
+        <label>
+            <input class="form-control" ng-change="ctrl.error=''" ng-model="ctrl.registrationForm.lastName"
+                   placeholder="Nazwisko"
+                   type="text"/>
+        </label>
+        <label>
+            <input class="form-control" ng-change="ctrl.error=''" ng-model="ctrl.registrationForm.year" type="number"/>
+        </label>
+    </div>
+    <div class="modal-footer">
+        <span class="label label-warning" ng-bind="ctrl.error" ng-if="ctrl.error" style="float: left;"></span>
+        <button class="btn btn-success fa fa-sign-in" ng-click="ctrl.ok()" type="submit"></button>
+        <button class="btn btn-danger fa fa-times" ng-click="ctrl.cancel()" type="button"></button>
+    </div>
+</form>
+</body>
+</html>

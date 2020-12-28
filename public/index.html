@@ -28,6 +28,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
                 </button>
 
             </div>
@@ -41,6 +42,9 @@
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a ng-bind-html="ctrl.registerIcon()" ng-click="ctrl.register()"></a>
+                    </li>
                     <li>
                         <a ng-bind-html="ctrl.loginIcon()" ng-click="ctrl.login()"></a>
                     </li>
@@ -64,6 +68,7 @@
 <script src="js/transfersCtrl.js"></script>
 <script src="js/loginDialog.js"></script>
 <script src="js/deleteDialog.js"></script>
+<script src="js/registerDialog.js"></script>
 <script src="js/groupsCtrl.js"></script>
 </body>
 </html>

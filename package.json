@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/czarus98/WebApp#readme",
   "dependencies": {
+    "bcrypt": "^5.0.0",
     "bootstrap": "^4.5.3",
     "cookies": "^0.8.0",
     "mongodb": "^3.6.3",

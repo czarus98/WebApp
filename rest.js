@@ -2,6 +2,7 @@ let db = require('./db')
 let collectionRest = require('./collectionRest')
 let transfer = require('./transfer')
 let login = require('./login')
+let register = require('./register')
 let lib = require('./lib')
 let userHandler = require('./userHandler')
 
@@ -38,7 +39,10 @@ module.exports = {
                 break
             case '/login':
                 login.handle(env)
-                break;
+                break
+            case '/register':
+                register.handle(env)
+                break
             default:
                 return false
         }

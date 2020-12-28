@@ -31,7 +31,7 @@ module.exports = {
                 } else {
                     let limit = parseInt(env.parsedUrl.query.limit)
                     let skip = parseInt(env.parsedUrl.query.skip)
-                    if (isNaN(limit) || limit <= 0 || skip<0 || isNaN(skip)) {
+                    if (isNaN(limit) || limit <= 0 || skip < 0 || isNaN(skip)) {
                         lib.serveError(env.res, 400, 'wrong limit or skip number')
                         return
                     }
@@ -39,7 +39,7 @@ module.exports = {
                     let value_match = new RegExp(filter)
                     db.userCollection.aggregate([
                         {$match: {$or: [{firstName: value_match}, {lastName: value_match}, {email: value_match}]}},
-                        {$limit: limit+skip},
+                        {$limit: limit + skip},
                         {$skip: skip}
                     ]).toArray(function (err, result) {
                         if (err)
@@ -65,7 +65,7 @@ module.exports = {
                 break
             case 'POST':
                 db.userCollection.findOne({email: env.parsedPayload.email}, function (err, emailResult) {
-                    if(!emailResult) {
+                    if (!emailResult) {
                         db.userCollection.insertOne(env.parsedPayload, function (err, insertResult) {
                             if (err || !insertResult.ops || !insertResult.ops[0]) {
                                 lib.serveError(env.res, 400, 'Insert failed')
@@ -83,7 +83,7 @@ module.exports = {
                 if (_id) {
                     delete env.parsedPayload._id
                     db.userCollection.findOne({email: env.parsedPayload.email}, function (err, emailResult) {
-                        if(!emailResult) {
+                        if (!emailResult) {
                             db.userCollection.findOneAndUpdate({_id: _id},
                                 {$set: env.parsedPayload},
                                 {returnOriginal: false},

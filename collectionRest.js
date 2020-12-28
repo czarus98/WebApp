@@ -20,7 +20,7 @@ module.exports = {
                 if (_id) {
                     collection.findOne({_id: _id}, function (err, result) {
                         if (err || !result) {
-                            lib.serveError(env.res, 404, 'User not found')
+                            lib.serveError(env.res, 404, 'Object not found')
                         } else {
                             lib.serveJson(env.res, result)
                         }

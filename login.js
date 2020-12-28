@@ -19,7 +19,6 @@ module.exports = {
             case 'POST':
                 db.userCollection.findOne({email: env.parsedPayload.login}, function (err, result1) {
                     if (err || !result1) {
-                        console.log('email')
                         lib.serveError(env.res, 401, 'authorization failed')
                     } else {
                         db.credentialCollection.findOne({user_id: result1._id}, function (err, result2) {
