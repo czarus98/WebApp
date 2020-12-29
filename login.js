@@ -1,5 +1,6 @@
 let lib = require('./lib')
 let db = require('./db')
+let bcrypt = require("bcrypt");
 
 let serveSessionData = function (env) {
     lib.serveJson(env.res, {
@@ -22,14 +23,20 @@ module.exports = {
                         lib.serveError(env.res, 401, 'authorization failed')
                     } else {
                         db.credentialCollection.findOne({user_id: result1._id}, function (err, result2) {
-                            if (err || !result2 || result2.password !== env.parsedPayload.password) {
-                                lib.serveError(env.res, 401, 'authorization failed')
+                            if (!err || result2) {
+                                bcrypt.compare(env.parsedPayload.password, result2.password, function (err, res) {
+                                    if (res) {
+                                        env.sessionData.login = env.parsedPayload.login
+                                        env.sessionData.firstName = result1.firstName
+                                        env.sessionData.role = result2.role
+                                        env.sessionData._id = result1._id
+                                        serveSessionData(env)
+                                    } else {
+                                        lib.serveError(env.res, 401, 'authorization failed')
+                                    }
+                                })
                             } else {
-                                env.sessionData.login = env.parsedPayload.login
-                                env.sessionData.firstName = result1.firstName
-                                env.sessionData.role = result2.role
-                                env.sessionData._id = result1._id
-                                serveSessionData(env)
+                                lib.serveError(env.res, 401, 'authorization failed')
                             }
                         })
                     }

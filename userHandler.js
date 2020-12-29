@@ -74,7 +74,6 @@ module.exports = {
                             }
                         })
                     } else {
-
                         lib.serveError(env.res, 400, 'Email already exists')
                     }
                 })
