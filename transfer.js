@@ -107,7 +107,7 @@ module.exports = {
             case 'DELETE':
                 db.userCollection.findOne({_id: env.sessionData._id}, function (err, senderData) {
                     if (err || !senderData) {
-                        lib.serveError(env.res, 404, 'No sender')
+                        lib.serveError(env.res, 404, 'no sender')
                         return
                     }
                     lib.serveJson(env.res, {amount: senderData.amount})

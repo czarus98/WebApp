@@ -15,7 +15,7 @@
         <th>Kwota po</th>
     </tr>
     <tr ng-repeat="transfer in ctrl.history">
-        <td ng-bind="ctrl.formatDate(transfer.date)"></td>
+        <td ng-bind="ctrl.formatDateTime(transfer.date)"></td>
         <td ng-bind="transfer.senderFirstName+' '+transfer.senderLastName"></td>
         <td ng-bind="transfer.recipientFirstName+' '+transfer.recipientLastName"></td>
         <td ng-bind="transfer.amount_after - transfer.delta"></td>

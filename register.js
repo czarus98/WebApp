@@ -25,6 +25,7 @@ module.exports = {
                                 lastName: env.parsedPayload.lastName,
                                 email: env.parsedPayload.email,
                                 year: env.parsedPayload.year,
+                                amount: 1000,
                                 role: 2
                             }, function (err, insertResult) {
                                 if (err || !insertResult.ops || !insertResult.ops[0]) {
@@ -43,7 +44,21 @@ module.exports = {
                                                 if (err || !credInsertResult.ops || !credInsertResult.ops[0]) {
                                                     lib.serveError(env.res, 400, 'Insert to credentials failed')
                                                 } else {
-                                                    serveSessionData(env)
+                                                    let now = new Date().getTime()
+                                                    let delta = 1000
+                                                    db.historyCollection.insertOne({
+                                                        date: now,
+                                                        sender: '',
+                                                        recipient: _id,
+                                                        delta: delta,
+                                                        amount_after: delta
+                                                    }, function (err, historyInsertResult) {
+                                                        if(historyInsertResult) {
+                                                            serveSessionData(env)
+                                                        } else {
+                                                            lib.serveError(env.res, 400, 'Insert to history failed')
+                                                        }
+                                                    })
                                                 }
                                             })
 
