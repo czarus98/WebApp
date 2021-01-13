@@ -35,7 +35,6 @@ module.exports = {
                                     bcrypt.genSalt(10, function (err, salt) {
                                         bcrypt.hash(env.parsedPayload.password, salt, function (err, hash) {
                                             if (err) throw err
-
                                             db.credentialCollection.insertOne({
                                                 user_id: _id,
                                                 password: hash,

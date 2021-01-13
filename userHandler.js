@@ -1,6 +1,7 @@
 let db = require('./db')
 let mongodb = require('mongodb')
 let lib = require('./lib')
+let bcrypt = require('bcrypt')
 
 module.exports = {
     handle: function (env) {
@@ -70,7 +71,24 @@ module.exports = {
                             if (err || !insertResult.ops || !insertResult.ops[0]) {
                                 lib.serveError(env.res, 400, 'Insert failed')
                             } else {
-                                lib.serveJson(env.res, insertResult.ops[0])
+                                let _id = insertResult.ops[0]._id
+                                bcrypt.genSalt(10, function (err, salt) {
+                                    bcrypt.hash("test", salt, function (err, hash) {
+                                        if (err) throw err
+                                        let role = parseInt(env.parsedPayload.role)
+                                        db.credentialCollection.insertOne({
+                                            user_id: _id,
+                                            password: hash,
+                                            role: role
+                                        }, function (err, credInsertResult) {
+                                            if (err || !credInsertResult) {
+                                                lib.serveError(env.res, 401, 'Error')
+                                            } else {
+                                                lib.serveJson(env.res, insertResult.ops[0])
+                                            }
+                                        })
+                                    })
+                                })
                             }
                         })
                     } else {
