@@ -5,6 +5,7 @@ let login = require('./login')
 let register = require('./register')
 let lib = require('./lib')
 let userHandler = require('./userHandler')
+let passwordChange = require('./passwordChange')
 
 module.exports = {
     handle: function (env) {
@@ -42,6 +43,9 @@ module.exports = {
                 break
             case '/register':
                 register.handle(env)
+                break
+            case '/passwordChange':
+                passwordChange.handle(env)
                 break
             default:
                 return false

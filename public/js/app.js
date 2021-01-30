@@ -150,7 +150,7 @@ app.controller('ContainerCtrl', ['$http', '$scope', '$location', 'common', funct
     }
 
     ctrl.registerIcon = function () {
-        return common.sessionData.login ? '' : 'Rejestracja'
+        return common.sessionData.login ? 'Zmiana hasła' : 'Rejestracja'
     }
 
     ctrl.login = function () {
@@ -183,13 +183,22 @@ app.controller('ContainerCtrl', ['$http', '$scope', '$location', 'common', funct
 
 
     ctrl.register = function () {
-        common.dialog('registerDialog.html', 'RegisterDialog', {}, function (result) {
-            if (result) {
-                common.rebuildMenu(function () {
-                    common.alert('alert-success', 'Mozesz sie teraz zalogowac')
-                })
-            }
-        })
+        if(common.sessionData.login) {
+            common.dialog('passwordChangeDialog.html', 'PasswordDialog', {}, function (result) {
+                if (result) {
+                    common.rebuildMenu(function () {
+                        common.alert('alert-success', 'Udalo Ci sie zmienic haslo')
+                    })
+                }
+            })
+        } else {
+            common.dialog('registerDialog.html', 'RegisterDialog', {}, function (result) {
+                if (result) {
+                    common.rebuildMenu(function () {
+                        common.alert('alert-success', 'Mozesz sie teraz zalogowac')
+                    })
+                }
+            })
+        }
     }
-
 }])
